@@ -1,0 +1,391 @@
+#
+# CKAN - Pylons configuration
+#
+# These are some of the configuration options available for your CKAN
+# instance. Check the documentation in 'doc/configuration.rst' or at the
+# following URL for a description of what they do and the full list of
+# available options:
+#
+# http://docs.ckan.org/en/latest/maintaining/configuration.html
+#
+# The %(here)s variable will be replaced with the parent directory of this file
+#
+
+[DEFAULT]
+
+# WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
+debug = false
+
+[server:main]
+use = egg:Paste#http
+host = 0.0.0.0
+port = 5000
+
+[app:main]
+use = egg:ckan
+full_stack = true
+cache_dir = /tmp/%(ckan.site_id)s/
+beaker.session.key = ckan
+
+# This is the secret token that the beaker library uses to hash the cookie sent
+# to the client. `paster make-config` generates a unique value for this each
+# time it generates a config file.
+beaker.session.secret = ##########################
+
+# `paster make-config` generates a unique value for this each time it generates
+# a config file.
+app_instance_uuid = 3756e0ac-284a-4825-987a-88147ad3deea
+
+# repoze.who config
+who.config_file = %(here)s/who.ini
+who.log_level = warning
+who.log_file = %(cache_dir)s/who_log.ini
+# Session timeout (user logged out after period of inactivity, in seconds).
+# Inactive by default, so the session doesn't expire.
+# who.timeout = 86400
+
+## Database Settings
+sqlalchemy.url = postgresql://ckan_user:ckan_user@########:5432/ckan
+ckan.datastore.write_url = postgresql://ckan_user:ckan_user@##########:5432/datastore
+ckan.datastore.read_url = postgresql://datastore_user:datastore_user@############:5432/datastore
+
+# PostgreSQL' full-text search parameters
+ckan.datastore.default_fts_lang = english
+ckan.datastore.default_fts_index_method = gist
+
+
+## Site Settings
+
+ckan.site_url = https://CHANGEME.org
+ckan.root_path = /ckan/
+#ckan.use_pylons_response_cleanup_middleware = true
+
+## Authorization Settings
+
+ckan.auth.anon_create_dataset = false
+ckan.auth.create_unowned_dataset = false
+ckan.auth.create_dataset_if_not_in_organization = false
+ckan.auth.user_create_groups = true
+ckan.auth.user_create_organizations = false
+ckan.auth.user_delete_groups = false
+ckan.auth.user_delete_organizations = true
+ckan.auth.create_user_via_api = false
+ckan.auth.create_user_via_web = true
+ckan.auth.roles_that_cascade_to_sub_groups = admin
+ckan.auth.public_user_details = false
+
+# TODO check why it down https://docs.ckan.org/en/master/publisher-profile.html
+# ckan.auth.profile = publisher
+
+## Search Settings
+
+ckan.site_id = default
+solr_url = http://127.0.0.1:8983/solr
+
+
+## Redis Settings
+
+# URL to your Redis instance, including the database to be used.
+ckan.redis.url = redis://127.0.0.1:6379/0
+
+
+## CORS Settings
+
+# If cors.origin_allow_all is true, all origins are allowed.
+# If false, the cors.origin_whitelist is used.
+# ckan.cors.origin_allow_all = true
+# cors.origin_whitelist is a space separated list of allowed domains.
+# ckan.cors.origin_whitelist = http://example1.com http://example2.com
+
+
+## Plugins Settings
+
+# Note: Add ``datastore`` to enable the CKAN DataStore
+#       Add ``datapusher`` to enable DataPusher
+#		Add ``resource_proxy`` to enable resorce proxying and get around the
+#		same origin policy
+# "datapackager validation" to use datapackager
+ckan.plugins = oauth2 datapackager validation stats text_view image_view recline_view resource_proxy geo_view datastore datapusher spatial_metadata spatial_query harvest ckan_harvester pdf_view tableau_view structured_data
+
+
+## OAuth2 configuration
+#ckan.oauth2.authorization_endpoint = https://www.googleapis.com/oauth2/v4/auth
+ckan.oauth2.authorization_endpoint = https://accounts.google.com/o/oauth2/v2/auth
+
+ckan.oauth2.token_endpoint = https://www.googleapis.com/oauth2/v4/token
+
+ckan.oauth2.profile_api_url = https://www.googleapis.com/oauth2/v3/userinfo
+ckan.oauth2.scope = https://www.googleapis.com/auth/userinfo.email openid https://www.googleapis.com/auth/userinfo.profile
+
+ckan.oauth2.client_id = ###################.apps.googleusercontent.com
+ckan.oauth2.client_secret = ########################
+
+# IAP JWT
+ckan.oauth2.jwt.enable = true
+ckan.oauth2.authorization_header = x-goog-iap-jwt-assertion
+ckan.oauth2.profile_api_user_field = gcip.email
+ckan.oauth2.profile_api_fullname_field = gcip.firebase.sign_in_attributes_name
+ckan.oauth2.profile_api_mail_field = gcip.email
+#ckan.oauth2.profile_api_groupmembership_field
+#ckan.oauth2.sysadmin_group_name
+
+
+# GCP Authentication platform
+#ckan.oauth2.jwt.enable = false
+#ckan.oauth2.authorization_header = GCP_IAAP_AUTH_TOKEN
+#ckan.oauth2.profile_api_user_field = email
+#ckan.oauth2.profile_api_fullname_field = name
+#ckan.oauth2.profile_api_mail_field = email
+
+#ckan.oauth2.register_url
+#ckan.oauth2.reset_url
+#ckan.oauth2.edit_url
+
+# validation (datapackager)
+ckanext.validation.formats = csv xlsx
+scheming.dataset_schemas = ckanext.validation.examples:ckan_default_schema.json
+# https://github.com/frictionlessdata/ckanext-validation#changes-in-the-metadata-schema
+scheming.presets = ckanext.scheming:presets.json ckanext.validation:presets.json
+
+
+# Define which views should be created by default
+# (plugins must be loaded in ckan.plugins)
+ckan.views.default_views = image_view text_view recline_view geo_view wms wfs geojson
+
+# Customize which text formats the text_view plugin will show
+#ckan.preview.json_formats = json
+#ckan.preview.xml_formats = xml rdf rdf+xml owl+xml atom rss
+#ckan.preview.text_formats = text plain text/plain
+
+# Customize which image formats the image_view plugin will show
+#ckan.preview.image_formats = png jpeg jpg gif
+
+
+#harvest plugin configs
+#ckan.harvest.mq.type = redis
+#ckan.harvest.mq.redis_db = 0
+#ckan.harvest.mq.port = 6379
+#ckan.harvest.mq.hostname = localhost
+
+
+
+#rabbitmq
+
+ckan.harvest.mq.user_id = guest
+ckan.harvest.mq.port = 5672
+ckan.harvest.mq.hostname = localhost
+#ckan.harvest.mq.virtual_host = 
+
+#ckan.harvest.log_scope = 0
+#ckan.harvest.log_level = debug
+#ckan.harvest.log_timeframe = 10
+#ckan.harvest.status_mail.errored = True
+
+#spacial plugin settings
+ckan.spatial.srid = 4326
+
+##geoview plugin confis
+ckanext.geoview.shp_viewer.encoding = UTF-8
+#will support these formats below as default
+#ckanext.geoview.ol_viewer.formats = wms kml
+
+#csw 
+ckan.spatial.validator.profiles = iso19139
+ckanext.spatial.harvest.user_name = patrick
+ckanext.spatial.harvest.reindex_unchanged = False
+continue_on_validation_errors = true
+ckanext.spatial.harvest.continue_on_validation_errors = true
+
+#pages plugin config
+ckanext.pages.organization = True
+ckanext.pages.group = True
+ckanext.pages.editor = ckeditor
+ckanext.pages.allow_html = True
+
+
+
+## Front-End Settings
+
+# Uncomment following configuration to enable using of Bootstrap 2
+#ckan.base_public_folder = public-bs2
+#ckan.base_templates_folder = templates-bs2
+
+ckan.site_title = CKAN
+ckan.site_logo = /base/images/ckan-logo.png
+ckan.site_description =
+ckan.favicon = /base/images/ckan.ico
+ckan.gravatar_default = identicon
+ckan.preview.direct = png jpg gif
+ckan.preview.loadable = csv-geo-lat-lon html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
+ckan.display_timezone = server
+
+# package_hide_extras = for_search_index_only
+#package_edit_return_url = http://another.frontend/dataset/<NAME>
+#package_new_return_url = http://another.frontend/dataset/<NAME>
+#ckan.recaptcha.publickey =
+#ckan.recaptcha.privatekey =
+#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
+# ckan.template_footer_end =
+
+
+## Internationalisation Settings
+ckan.locale_default = en
+ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
+ckan.locales_offered =
+ckan.locales_filtered_out = en_GB
+
+## Feeds Settings
+
+ckan.feeds.authority_name =
+ckan.feeds.date =
+ckan.feeds.author_name =
+ckan.feeds.author_link =
+
+## Storage Settings
+
+ckan.storage_path = /mnt/disks/ckan-data/ckan/default
+ckan.max_resource_size = 50
+ckan.max_image_size = 5
+
+## Datapusher settings
+
+# Make sure you have set up the DataStore
+
+ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ckan.datapusher.url = http://127.0.0.1:8800/
+ckan.datapusher.assume_task_stale_after = 3600
+
+# Resource Proxy settings
+# Preview size limit, default: 1MB
+ckan.resource_proxy.max_file_size = 100048576
+# Size of chunks to read/write.
+#ckan.resource_proxy.chunk_size = 4096
+
+## Activity Streams Settings
+
+#ckan.activity_streams_enabled = true
+#ckan.activity_list_limit = 31
+#ckan.activity_streams_email_notifications = true
+#ckan.email_notifications_since = 2 days
+ckan.hide_activity_from_users = %(ckan.site_id)s
+
+
+## Email settings
+
+#email_to = errors@example.com
+#error_email_from = ckan-errors@example.com
+#smtp.server = localhost
+#smtp.starttls = False
+#smtp.user = username@example.com
+#smtp.password = your_password
+#smtp.mail_from =
+
+
+## Logging configuration
+[loggers]
+keys = root, ckan, ckanext , harvest , datapusher , spatial, dcat , faociok,pages, fao_permisions
+
+[handlers]
+keys = console, harvestHandler , datapusherHandler, spatialHandler, facioklHandler, dcatHandler,pagesHandler, faoPermisionsHandler
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARNING
+handlers = console
+
+[logger_ckan]
+level = DEBUG
+handlers = console
+qualname = ckan
+propagate = 0
+
+[logger_sqlalchemy]
+handlers = console
+qualname = ckan.sqlalchemy.engine
+level = DEBUG
+
+[logger_fao_permisions]
+level = DEBUG
+handlers = faoPermisionsHandler
+qualname = ckanext.fao_permisions
+propagate = 0
+
+
+[handler_faoPermisionsHandler]
+formatter=generic
+class=handlers.RotatingFileHandler
+maxBytes=3457280
+level=DEBUG
+args=('/var/log/apache2/permisions.log','a','maxBytes=3457280', 'backupCount=6')
+
+
+[logger_harvest]
+level = DEBUG
+handlers = harvestHandler
+qualname = ckanext.harvest
+propagate = 0
+
+[handler_harvestHandler]
+formatter=generic
+class=handlers.RotatingFileHandler
+maxBytes=3457280
+level=DEBUG
+args=('/var/log/apache2/harvest.log','a','maxBytes=3457280', 'backupCount=6')
+
+[logger_pages]
+level = DEBUG
+handlers = pagesHandler
+qualname = ckanext.pages
+propagate = 0
+
+[handler_pagesHandler]
+formatter=generic
+class=handlers.RotatingFileHandler
+maxBytes=3457280
+level=DEBUG
+args=('/var/log/apache2/pages.log','a','maxBytes=3457280', 'backupCount=6')
+
+[logger_spatial]
+level = DEBUG
+handlers = spatialHandler
+qualname = ckanext.spatial
+propagate = 0
+
+[handler_spatialHandler]
+formatter=generic
+class=handlers.RotatingFileHandler
+maxBytes=3457280
+level=DEBUG
+args=('/var/log/apache2/spatial.log','a','maxBytes=3457280', 'backupCount=6')
+
+[logger_ckanext]
+level = DEBUG
+handlers = console
+qualname = ckanext
+propagate = 0
+
+[logger_datapusher]
+level = DEBUG
+handlers = datapusherHandler
+qualname = datapusher
+propagate = 0
+
+[handler_datapusherHandler]
+formatter=generic
+class=handlers.RotatingFileHandler
+maxBytes=31457280
+level=DEBUG
+args=('/var/log/apache2/datapusher.log','a','maxBytes=31457280', 'backupCount=3')
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s] %(message)s
+
+

@@ -78,8 +78,7 @@ class OAuth2Helper(object):
         self.profile_api_mail_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_MAIL_FIELD', toolkit.config.get('ckan.oauth2.profile_api_mail_field', ''))).strip()
         self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.oauth2.profile_api_groupmembership_field', ''))).strip()
         self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_OAUTH2_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.oauth2.sysadmin_group_name', ''))).strip()
-
-        self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')), constants.REDIRECT_URL)
+	self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')), constants.REDIRECT_URL)
 
         # Init db
         db.init_db(model)
@@ -129,13 +128,29 @@ class OAuth2Helper(object):
 
         return token
 
+    def flatten_dict(self, d):
+        def expand(key, value):
+            if isinstance(value, dict):
+                return [ (key + '.' + k, v) for k, v in self.flatten_dict(value).items() ]
+            else:
+                return [ (key, value) ]
+        items = [ item for k, v in d.items() for item in expand(k, v) ]
+        return dict(items)
+
     def identify(self, token):
-
         if self.jwt_enable:
-
             access_token = bytes(token['access_token'])
-            user_data = jwt.decode(access_token, verify=False)
-            user = self.user_json(user_data)
+            try:
+                # TODO VALIDATION
+                # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
+                user_data = jwt.decode(access_token, verify=False)
+                log.debug("JWT:"+str(user_data))
+            except Exception as e:
+#jwt.ExpiredSignatureError:
+#                e = sys.exc_info()[0]
+                log.exception('Unable to validate JWT token: '+str(e))
+                raise
+            user = self.user_json(self.flatten_dict(user_data))
         else:
 
             try:
