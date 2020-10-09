@@ -282,6 +282,7 @@ class OAuth2Helper(object):
             client = OAuth2Session(self.client_id, token=token, scope=self.scope)
             try:
                 token = client.refresh_token(self.token_endpoint, client_secret=self.client_secret, client_id=self.client_id, verify=self.verify_https)
+                log.debug("------TOKEN-RENEWED: "+str(token))
             except requests.exceptions.SSLError as e:
                 log.exception(e)
                 # TODO search a better way to detect invalid certificates
