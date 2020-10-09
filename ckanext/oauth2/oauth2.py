@@ -79,6 +79,7 @@ class OAuth2Helper(object):
         self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.oauth2.profile_api_groupmembership_field', ''))).strip()
         self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_OAUTH2_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.oauth2.sysadmin_group_name', ''))).strip()
 	self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL)
+#        self.authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", config.get('ckan.oauth2.authorization_header', 'Authorization')).lower()
 #	self.redirect_uri = toolkit.config.get('ckan.site_url', 'http://localhost:5000') + toolkit.config.get('ckan.root_path')+'/'+ constants.REDIRECT_URL
 	log.debug("***************"+urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL))
 
@@ -98,7 +99,8 @@ class OAuth2Helper(object):
         auth_url, _ = oauth.authorization_url(self.authorization_endpoint)
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         # CKAN 2.6 only supports bytes
-        return toolkit.redirect_to(auth_url.encode('utf-8'))
+        response = toolkit.redirect_to(auth_url.encode('utf-8'))
+
 
     def get_token(self):
         oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
@@ -230,8 +232,11 @@ class OAuth2Helper(object):
         environ = toolkit.request.environ
         rememberer = self._get_rememberer(environ)
         identity = {'repoze.who.userid': user_name}
+        log.debug("-------------UID:"+user_name)
         headers = rememberer.remember(environ, identity)
+#        headers = rememberer.remember(identity)
         for header, value in headers:
+            log.debug("-------------H:"+header+"---V:"+value)
             toolkit.response.headers.add(header, value)
 
     def redirect_from_callback(self):

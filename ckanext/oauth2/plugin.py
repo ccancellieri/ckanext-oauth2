@@ -30,6 +30,8 @@ from ckan.common import g
 from ckan.plugins import toolkit
 from urlparse import urlparse
 
+import ckan.model as model
+
 log = logging.getLogger(__name__)
 
 
@@ -141,12 +143,25 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             else:
                 apikey = ''
 
+        if apikey is '':
+           apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
+           log.debug("--------NEW-APIKEY:"+apikey)
+
+
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
             try:
                 token = {'access_token': apikey}
                 user_name = self.oauth2helper.identify(token)
+                for e in environ:
+                   log.debug("--------ENVIRON:"+e)
+                
+#                self.oauth2helper.remember(user_name)
+                #self.oauth2helper.update_token(user_name, token)
+                #self.oauth2helper.redirect_from_callback()
+                #environ['repoze.who.identity']['repoze.who.userid']=user_name
             except Exception:
+                log.exception("-----------EXCEPTION")
                 pass
 
         # If the authentication via API fails, we can still log in the user using session.
@@ -154,15 +169,25 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
 
+#        if model.Session.get(
+
         # If we have been able to log in the user (via API or Session)
         if user_name:
             g.user = user_name
             toolkit.c.user = user_name
+            # Save the user in the database
+#            model.Session.add(user_name)
+#            model.Session.commit()
+#            model.Session.remove()
+            log.warn("-------------GETSTOREDTOKEN")
             toolkit.c.usertoken = self.oauth2helper.get_stored_token(user_name)
+            log.warn("-------------REFRESHTOKEN")
             toolkit.c.usertoken_refresh = partial(_refresh_and_save_token, user_name)
+            log.warn("-------------DONE")
         else:
             g.user = None
             log.warn('The user is not currently logged...')
+
 
     def get_auth_functions(self):
         # we need to prevent some actions being authorized.
