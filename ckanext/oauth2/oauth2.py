@@ -149,7 +149,7 @@ class OAuth2Helper(object):
                 # TODO VALIDATION
                 # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
                 user_data = jwt.decode(access_token, verify=False)
-                #log.debug("JWT:"+str(user_data))
+                log.debug("JWT:"+str(user_data))
             except Exception as e:
 #jwt.ExpiredSignatureError:
                 log.exception('Unable to validate JWT token: '+str(e))
