@@ -283,6 +283,7 @@ class OAuth2Helper(object):
             try:
                 token = client.refresh_token(self.token_endpoint, client_secret=self.client_secret, client_id=self.client_id, verify=self.verify_https)
             except requests.exceptions.SSLError as e:
+                log.exception(e)
                 # TODO search a better way to detect invalid certificates
                 if "verify failed" in six.text_type(e):
                     raise InsecureTransportError()
