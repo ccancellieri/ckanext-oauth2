@@ -268,7 +268,7 @@ class OAuth2Helper(object):
         firebase_admin.initialize_app(cred)
 
     def update_token(self, user_name, token):
-        log.debug("--------UPDATE: CALLED')
+        log.debug('--------UPDATE: CALLED')
         # Intialise Firebase
         cred = credentials.Certificate("serviceAccountKey.json")
         firebase_admin.initialize_app(cred)
