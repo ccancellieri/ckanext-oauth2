@@ -172,7 +172,6 @@ class OAuth2Helper(object):
         user = self.user_json(self.flatten_dict(user_data))
         # Save the user in the database
         model.Session.add(user)
-        model.Session.add(token)
         model.Session.commit()
         model.Session.remove()
 
