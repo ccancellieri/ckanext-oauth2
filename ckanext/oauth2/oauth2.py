@@ -290,9 +290,9 @@ class OAuth2Helper(object):
             user_token = db.UserToken()
             user_token.user_name = user_name
         # Save the new token
-        user_token.access_token = token['access_token']
-        user_token.token_type = token['token_type']
-        user_token.refresh_token = token.get('refresh_token')
+        # user_token.access_token = token['access_token']
+        # user_token.token_type = token['token_type']
+        # user_token.refresh_token = token.get('refresh_token')
 
         try:
             decoded_token = auth.verify_id_token(token, check_revoked=True)
