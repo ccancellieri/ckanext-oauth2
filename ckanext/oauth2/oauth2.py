@@ -279,6 +279,16 @@ class OAuth2Helper(object):
         'projectId': firebase_admin.get_app().project_id
     }, 'ckan-app')
 
+     def has_expired(self, token):
+    # Check validity of the token
+        if 'expires_in' in token:
+            user_token.expires_in = token['expires_in']
+            return user_token.expires_in <=0
+        else:
+            token.expires_in = token['exp'] - token['iat']
+            return has_expired(self, token)
+        return True
+
     def update_token(self, user_name, token):
         log.debug('--------UPDATE: CALLED')
         user_token = db.UserToken.by_user_name(user_name=user_name)
@@ -298,21 +308,6 @@ class OAuth2Helper(object):
                 log.warn('--------USER %s not allowed' % user_name)
                 raise 
         
-
-    def has_expired(self, token):
-    # Check validity of the token
-        if 'expires_in' in token:
-            user_token.expires_in = token['expires_in']
-            return user_token.expires_in <=0
-        else:
-            token.expires_in = token['exp'] - token['iat']
-            return has_expired(self, token)
-        return True
-        
-        
-       
-        
-
 
     def _update_token(self, user_name, token):
 
