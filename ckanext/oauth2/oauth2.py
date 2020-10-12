@@ -239,7 +239,7 @@ class OAuth2Helper(object):
         plugins = environ.get('repoze.who.plugins', {})
         return plugins.get(self.rememberer_name)
 
-    def remember(self, user_name):
+    def remember(self, user_name, token):
         '''
         Remember the authenticated identity.
 
@@ -249,8 +249,10 @@ class OAuth2Helper(object):
         environ = toolkit.request.environ
         rememberer = self._get_rememberer(environ)
         identity = {'repoze.who.userid': user_name}
+        token = {'repoze.who.token': token}
         log.debug("-------------UID:"+user_name)
         headers = rememberer.remember(environ, identity)
+        headers = rememberer.remember(environ, token) 
 #        headers = rememberer.remember(identity)
         for header, value in headers:
             log.debug("-------------H:"+header+"---V:"+value)
