@@ -154,7 +154,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                    log.debug("--------ENVIRON:"+e)
                 
 #                self.oauth2helper.remember(user_name)
-                #self.oauth2helper.update_token(user_name, token)
+                self.oauth2helper.update_token(user_name, token)
                 #self.oauth2helper.redirect_from_callback()
                 #environ['repoze.who.identity']['repoze.who.userid']=user_name
             except Exception:
@@ -165,6 +165,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
+            try:
+                self.oauth2helper.update_token(user_name, token)
+                log.debug("----------- SESSION VALIDATED")
+            except Exception:
+                log.exception("SESSION NOT VALIDATED-----------EXCEPTION")
 
 #        if model.Session.get(
 

@@ -83,7 +83,7 @@ class OAuth2Controller(base.BaseController):
  #                   log.debug("--------ENVIRON:"+e)
                 log.debug("-----CALLBACK---11")
                 self.oauth2helper.remember(user_name)
-                #self.oauth2helper.update_token(user_name, token)
+                self.oauth2helper.update_token(user_name, token)
                 log.debug("-----CALLBACK---31")
                 #environ['repoze.who.identity']['repoze.who.userid']=user_name
 
