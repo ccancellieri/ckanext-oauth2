@@ -276,7 +276,6 @@ class OAuth2Helper(object):
         user_token.token_type = token['token_type']
         user_token.refresh_token = token.get('refresh_token')
 
-
         try:
             decoded_token = auth.verify_id_token(token, check_revoked=True)
             uid = decoded_token['uid']
