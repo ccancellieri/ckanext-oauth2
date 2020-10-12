@@ -51,6 +51,14 @@ from firebase_admin import credentials
 
 log = logging.getLogger(__name__)
 
+ # Intialise Firebase
+google_cred = firebase_admin.get_app().credential.get_credential()
+cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
+firebase_admin.initialize_app(cred, {
+'serviceAccountId': google_cred.service_account_email,
+'projectId': firebase_admin.get_app().project_id
+}, 'ckan-app')
+
 
 def generate_state(url):
     return b64encode(bytes(json.dumps({constants.CAME_FROM_FIELD: url})))
@@ -273,13 +281,6 @@ class OAuth2Helper(object):
 
     def update_token(self, user_name, token):
         log.debug('--------UPDATE: CALLED')
-        # Intialise Firebase
-        google_cred = firebase_admin.get_app().credential.get_credential()
-        cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
-        firebase_admin.initialize_app(cred, {
-        'serviceAccountId': google_cred.service_account_email,
-        'projectId': firebase_admin.get_app().project_id
-    }, 'ckan-app')
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
