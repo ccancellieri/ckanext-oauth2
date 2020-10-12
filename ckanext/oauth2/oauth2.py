@@ -268,6 +268,7 @@ class OAuth2Helper(object):
         firebase_admin.initialize_app(cred)
 
     def update_token(self, user_name, token):
+        log.debug("--------UPDATE: "+token)
         # Intialise Firebase
         cred = credentials.Certificate("serviceAccountKey.json")
         firebase_admin.initialize_app(cred)
@@ -275,6 +276,7 @@ class OAuth2Helper(object):
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
         if not user_token:
+            log.debug("--------NEW USER: "+token)
             user_token = db.UserToken()
             user_token.user_name = user_name
         # Save the new token
@@ -288,7 +290,7 @@ class OAuth2Helper(object):
             user_token.access_token = uid
             # Check validity of the token
             if decoded_token['iat'] * 1000 >= new_user.tokens_valid_after_timestamp:
-                log.debug('User %s token has expired' % user_name)
+                log.debug('_ _ _ USER TOKEN %s token has expired' % user_name)
             else:
                 if 'expires_in' in token:
                     user_token.expires_in = token['expires_in']
@@ -300,10 +302,10 @@ class OAuth2Helper(object):
                 model.Session.commit()
 
 
-            log.debug(decoded_token)
+            log.debug("--------USER: Everything went smooth")
 
         except Exception as e: # ValueError or auth.AuthError
-            log.warn('User %s not allowed' % user_name)
+            log.warn('--------USER %s not allowed' % user_name)
             return str(e)
             
        
