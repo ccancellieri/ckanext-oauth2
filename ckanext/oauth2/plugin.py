@@ -135,18 +135,15 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         environ = toolkit.request.environ
         apikey = toolkit.request.headers.get(self.authorization_header, '')
+        log.debug("--------NEW-APIKEY:"+apikey)
         user_name = None
 
+        #"authorization: bearier {JWT}"
         if self.authorization_header == "authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
             else:
                 apikey = ''
-
-        if apikey is '':
-           apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
-           log.debug("--------NEW-APIKEY:"+apikey)
-
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:

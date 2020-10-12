@@ -54,53 +54,6 @@ class OAuth2Controller(base.BaseController):
 
         self.oauth2helper.challenge(came_from_url)
 
-    def _login(self):
-        log.debug('login')
-
-        res = urlopen(Request(self.oauth2helper.authorization_endpoint.encode('utf-8')))
-#        res = requests.get(self.oauth2helper.authorization_endpoint.encode('utf-8'))
-#                    headers=headers)
-
-        for h in res.headers:
-            log.debug("----HEADERS:---"+h)
-
-        environ = toolkit.request.environ
-#        if u'repoze.who.plugins' in environ:
-#                pth = getattr(environ[u'repoze.who.plugins'],u'')
-        for e in environ:
-#            log.debug("........u:"+environ.get(u'user'))
-            log.debug("--------ENVIRON:"+e)
-        authorization_header = "x-goog-iap-jwt-assertion".lower()
-#        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
-
-        apikey = toolkit.request.headers.get(authorization_header, '')
-#        apikey = toolkit.request.headers.get(self.oauth2helper.authorization_header, '')
-        user_name = None
-
-
-        # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
-        if apikey:
-            try:
-                token = {'access_token': apikey}
-                user_name = self.oauth2helper.identify(token)
-                for e in environ:
-                   log.debug("--------ENVIRON:"+e)
-                #self.oauth2helper.remember(user_name)
-                #self.oauth2helper.update_token(user_name, token)
-                #self.oauth2helper.redirect_from_callback()
-                #environ['repoze.who.identity']['repoze.who.userid']=user_name
-            except Exception:
-                log.exception("-----------EXCEPTION")
-                pass
-
-        toolkit.redirect_to("https://data.review.fao.org/ckan".encode('utf-8'))
-
-        # Get the params that were posted to /user/login.
-        params = toolkit.request.params
-
-	for p in params:
-            log.debug("-------------Req:---"+p)
-
     def callback(self):
         log.debug("-----CALLBACK---")
         try:
@@ -111,7 +64,7 @@ class OAuth2Controller(base.BaseController):
             #user_name = self.oauth2helper.identify(token)
             
             authorization_header = "x-goog-iap-jwt-assertion".lower()
-    #        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
+    #  TODO USE ME      authorization_header = toolkit.config.get("ckan.oauth2.authorization_header", 'Authorization').lower()
             log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
             for h in toolkit.response.headers:
                 log.debug("----HEADERS:---"+h)
