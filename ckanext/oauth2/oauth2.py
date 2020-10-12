@@ -281,42 +281,35 @@ class OAuth2Helper(object):
 
     def update_token(self, user_name, token):
         log.debug('--------UPDATE: CALLED')
-
         user_token = db.UserToken.by_user_name(user_name=user_name)
-        # Create the user if it does not exist
-        if not user_token:
-            log.debug('--------NEW USER: %s ' % user_name)
-            user_token = db.UserToken()
-            user_token.user_name = user_name
-        # Save the new token
-        # user_token.access_token = token['access_token']
-        # user_token.token_type = token['token_type']
-        # user_token.refresh_token = token.get('refresh_token')
-
-        try:
-            decoded_token = auth.verify_id_token(token, check_revoked=True)
-            uid = decoded_token['uid']
-            user_token.access_token = uid
-            # Check validity of the token
-            if decoded_token['iat'] * 1000 >= new_user.tokens_valid_after_timestamp:
-                log.debug('_ _ _ USER TOKEN %s token has expired' % user_name)
-            else:
-                if 'expires_in' in token:
-                    user_token.expires_in = token['expires_in']
-                else:
-                    access_token = jwt.decode(user_token.access_token, verify=False)
-                    user_token.expires_in = access_token['exp'] - access_token['iat']
-
+        if has_expired(token):
+            try:
+                decoded_token = auth.verify_id_token(token, check_revoked=True)
+                uid = decoded_token['uid']
+                user_token.access_token = uid
                 model.Session.add(user_token)
                 model.Session.commit()
 
 
-            log.debug("--------USER: Everything went smooth")
+                log.debug("--------USER: Everything went smooth")
 
-        except Exception as e: # ValueError or auth.AuthError
-            log.warn('--------USER %s not allowed' % user_name)
-            return str(e)
-            
+            except Exception as e: # ValueError or auth.AuthError
+                # TODO Raise a 403 page
+                log.warn('--------USER %s not allowed' % user_name)
+                raise 
+        
+
+    def has_expired(self, token):
+    # Check validity of the token
+        if 'expires_in' in token:
+            user_token.expires_in = token['expires_in']
+            return user_token.expires_in <=0
+        else:
+            token.expires_in = token['exp'] - token['iat']
+            return has_expired(self, token)
+        return True
+        
+        
        
         
 
