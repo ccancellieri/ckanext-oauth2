@@ -276,7 +276,7 @@ class OAuth2Helper(object):
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
         if not user_token:
-            log.debug("--------NEW USER: "+token)
+            log.debug('--------NEW USER: %s token has expired' % token)
             user_token = db.UserToken()
             user_token.user_name = user_name
         # Save the new token
