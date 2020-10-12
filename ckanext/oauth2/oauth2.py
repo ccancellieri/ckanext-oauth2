@@ -279,7 +279,7 @@ class OAuth2Helper(object):
         'projectId': firebase_admin.get_app().project_id
     }, 'ckan-app')
 
-     def has_expired(self, token):
+    def has_expired(self, token):
     # Check validity of the token
         if 'expires_in' in token:
             user_token.expires_in = token['expires_in']
