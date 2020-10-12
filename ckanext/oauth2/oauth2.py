@@ -264,14 +264,22 @@ class OAuth2Helper(object):
                 'token_type': user_token.token_type
             }
     def _init_firebase():
-        cred = credentials.Certificate("serviceAccountKey.json")
-        firebase_admin.initialize_app(cred)
+        google_cred = firebase_admin.get_app().credential.get_credential()
+        cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
+        firebase_admin.initialize_app(cred, {
+        'serviceAccountId': google_cred.service_account_email,
+        'projectId': firebase_admin.get_app().project_id
+    }, 'ckan-app')
 
     def update_token(self, user_name, token):
         log.debug('--------UPDATE: CALLED')
         # Intialise Firebase
-        cred = credentials.Certificate("/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json")
-        firebase_admin.initialize_app(cred)
+        google_cred = firebase_admin.get_app().credential.get_credential()
+        cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
+        firebase_admin.initialize_app(cred, {
+        'serviceAccountId': google_cred.service_account_email,
+        'projectId': firebase_admin.get_app().project_id
+    }, 'ckan-app')
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
