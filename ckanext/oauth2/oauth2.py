@@ -282,8 +282,7 @@ class OAuth2Helper(object):
     def has_expired(self, token):
     # Check validity of the token
         if 'expires_in' in token:
-            user_token.expires_in = token['expires_in']
-            return user_token.expires_in <=0
+            return token.expires_in <=0
         else:
             token.expires_in = token['exp'] - token['iat']
             return self.has_expired(self, token)
