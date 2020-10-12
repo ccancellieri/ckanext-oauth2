@@ -270,7 +270,7 @@ class OAuth2Helper(object):
     def update_token(self, user_name, token):
         log.debug('--------UPDATE: CALLED')
         # Intialise Firebase
-        cred = credentials.Certificate("serviceAccountKey.json")
+        cred = credentials.Certificate("/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json")
         firebase_admin.initialize_app(cred)
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
