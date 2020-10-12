@@ -268,7 +268,7 @@ class OAuth2Helper(object):
         firebase_admin.initialize_app(cred)
 
     def update_token(self, user_name, token):
-        log.debug("--------UPDATE: "+token)
+        log.debug("--------UPDATE: CALLED')
         # Intialise Firebase
         cred = credentials.Certificate("serviceAccountKey.json")
         firebase_admin.initialize_app(cred)
@@ -276,7 +276,7 @@ class OAuth2Helper(object):
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
         if not user_token:
-            log.debug('--------NEW USER: %s token has expired' % token)
+            log.debug('--------NEW USER: %s ' % user_name)
             user_token = db.UserToken()
             user_token.user_name = user_name
         # Save the new token
