@@ -243,13 +243,6 @@ class OAuth2Helper(object):
                 'expires_in': user_token.expires_in,
                 'token_type': user_token.token_type
             }
-    def _init_firebase():
-        google_cred = firebase_admin.get_app().credential.get_credential()
-        cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
-        firebase_admin.initialize_app(cred, {
-        'serviceAccountId': google_cred.service_account_email,
-        'projectId': firebase_admin.get_app().project_id
-    }, 'ckan-app')
 
     def has_expired(self, token):
     # Check validity of the token
