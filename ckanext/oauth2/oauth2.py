@@ -40,6 +40,14 @@ import jwt
 
 import constants
 
+# Firebase
+import uuid
+import google.oauth2.credentials
+from google.auth import transport
+import firebase_admin
+from firebase_admin import auth
+from firebase_admin import credentials
+
 
 log = logging.getLogger(__name__)
 
@@ -257,6 +265,47 @@ class OAuth2Helper(object):
             }
 
     def update_token(self, user_name, token):
+
+        user_token = db.UserToken.by_user_name(user_name=user_name)
+        # Create the user if it does not exist
+        if not user_token:
+            user_token = db.UserToken()
+            user_token.user_name = user_name
+        # Save the new token
+        user_token.access_token = token['access_token']
+        user_token.token_type = token['token_type']
+        user_token.refresh_token = token.get('refresh_token')
+
+
+        try:
+            decoded_token = auth.verify_id_token(token, check_revoked=True)
+            uid = decoded_token['uid']
+            user_token.access_token = uid
+            # Check validity of the token
+            if decoded_token['iat'] * 1000 >= new_user.tokens_valid_after_timestamp:
+                log.debug('User %s token has expired' % user_name)
+            else:
+                if 'expires_in' in token:
+                    user_token.expires_in = token['expires_in']
+                else:
+                    access_token = jwt.decode(user_token.access_token, verify=False)
+                    user_token.expires_in = access_token['exp'] - access_token['iat']
+
+                model.Session.add(user_token)
+                model.Session.commit()
+
+
+            log.debug(decoded_token)
+
+        except Exception as e: # ValueError or auth.AuthError
+            log.warn('User %s not allowed' % user_name)
+            return str(e)
+            
+       
+        
+
+
+    def _update_token(self, user_name, token):
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
         # Create the user if it does not exist
