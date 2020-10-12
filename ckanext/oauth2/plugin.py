@@ -23,6 +23,7 @@ from __future__ import unicode_literals
 import logging
 import oauth2
 import os
+import db
 
 from functools import partial
 from ckan import plugins
@@ -164,10 +165,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         # If the authentication via API fails, we can still log in the user using session.
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
-            token = environ['repoze.who.identity']['userdata']
+            #token = environ['repoze.who.identity']['userdata']
+            user_token = db.UserToken.by_user_name(user_name=user_name)
             log.info('User %s logged using session' % user_name)
             try:
-                self.oauth2helper.update_token(user_name, token)
+                self.oauth2helper.update_token(user_name, user_token)
                 log.debug("----------- SESSION VALIDATED")
             except Exception:
                 log.exception("SESSION NOT VALIDATED-----------EXCEPTION")
