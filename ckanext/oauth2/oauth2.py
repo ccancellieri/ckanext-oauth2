@@ -159,48 +159,20 @@ class OAuth2Helper(object):
         return dict(items)
 
     def identify(self, token):
-
-        if self.jwt_enable:
-            access_token = bytes(token['access_token'])
-            try:
-                # TODO VALIDATION
-                # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
-                user_data = jwt.decode(access_token, verify=False)
-                #log.debug("JWT:"+str(user_data))
-            except Exception as e:
-#jwt.ExpiredSignatureError:
-                log.exception('Unable to validate JWT token: '+str(e))
-                raise
-            user = self.user_json(self.flatten_dict(user_data))
-        else:
-
-            try:
-                if self.legacy_idm:
-                    profile_response = requests.get(self.profile_api_url + '?access_token=%s' % token['access_token'], verify=self.verify_https)
-                else:
-                    oauth = OAuth2Session(self.client_id, token=token)
-                    profile_response = oauth.get(self.profile_api_url, verify=self.verify_https)
-
-            except requests.exceptions.SSLError as e:
-                # TODO search a better way to detect invalid certificates
-                if "verify failed" in six.text_type(e):
-                    raise InsecureTransportError()
-                else:
-                    raise
-
-            # Token can be invalid
-            if not profile_response.ok:
-                error = profile_response.json()
-                if error.get('error', '') == 'invalid_token':
-                    raise ValueError(error.get('error_description'))
-                else:
-                    profile_response.raise_for_status()
-            else:
-                user_data = profile_response.json()
-                user = self.user_json(user_data)
-
+        access_token = bytes(token['access_token'])
+        try:
+            # TODO VALIDATION
+            # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
+            user_data = jwt.decode(access_token, verify=False)
+            #log.debug("JWT:"+str(user_data))
+        except Exception as e:
+    #jwt.ExpiredSignatureError:
+            log.exception('Unable to validate JWT token: '+str(e))
+            raise
+        user = self.user_json(self.flatten_dict(user_data))
         # Save the user in the database
         model.Session.add(user)
+        model.Session.add(token)
         model.Session.commit()
         model.Session.remove()
 
