@@ -248,12 +248,9 @@ class OAuth2Helper(object):
         log.debug('Repoze OAuth remember')
         environ = toolkit.request.environ
         rememberer = self._get_rememberer(environ)
-        identity = {'repoze.who.userid': user_name}
-        token = {'repoze.who.token': token}
+        identity = {'repoze.who.userid': user_name, 'userdata': token}
         log.debug("-------------UID:"+user_name)
         headers = rememberer.remember(environ, identity)
-        headers = rememberer.remember(environ, token) 
-#        headers = rememberer.remember(identity)
         for header, value in headers:
             log.debug("-------------H:"+header+"---V:"+value)
             toolkit.response.headers.add(header, value)
