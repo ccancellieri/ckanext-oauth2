@@ -57,7 +57,7 @@ cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext
 firebase_admin.initialize_app(cred, {
 'serviceAccountId': google_cred.service_account_email,
 'projectId': firebase_admin.get_app().project_id
-}, 'ckan')
+})
 
 
 def generate_state(url):
