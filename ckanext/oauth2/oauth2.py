@@ -52,7 +52,7 @@ from firebase_admin import credentials
 log = logging.getLogger(__name__)
 
  # Intialise Firebase
-firebase_admin.initializeApp();
+firebase_admin.initialize_app();
 google_cred = firebase_admin.get_app().credential.get_credential()
 cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
 firebase_admin.initialize_app(cred, {
