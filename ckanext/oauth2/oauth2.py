@@ -34,7 +34,6 @@ from ckan.plugins import toolkit
 from oauthlib.oauth2 import InsecureTransportError
 import requests
 from requests_oauthlib import OAuth2Session
-from firebase_admin import auth
 import six
 
 import jwt
