@@ -34,6 +34,7 @@ from ckan.plugins import toolkit
 from oauthlib.oauth2 import InsecureTransportError
 import requests
 from requests_oauthlib import OAuth2Session
+from firebase_admin import auth
 import six
 
 import jwt
@@ -46,19 +47,13 @@ import google.oauth2.credentials
 from google.auth import transport
 import firebase_admin
 from firebase_admin import auth
-from firebase_admin import credentials
+# from firebase_admin import credentials
 
 
 log = logging.getLogger(__name__)
 
  # Intialise Firebase
 firebase_admin.initialize_app()
-# google_cred = firebase_admin.get_app().credential.get_credential()
-# cred = credentials.Certificate('/usr/lib/ckan/default/src/ckanext-oauth2/ckanext/oauth2/serviceAccountKey.json')
-# firebase_admin.initialize_app(cred, {
-# 'serviceAccountId': google_cred.service_account_email,
-# 'projectId': firebase_admin.get_app().project_id
-# })
 
 
 def generate_state(url):
