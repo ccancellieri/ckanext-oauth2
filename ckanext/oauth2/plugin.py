@@ -24,6 +24,7 @@ import logging
 import oauth2
 import os
 import db
+import ckan.lib.helpers as helpers
 
 from functools import partial
 from ckan import plugins
@@ -136,31 +137,19 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         environ = toolkit.request.environ
         apikey = toolkit.request.headers.get(self.authorization_header, '')
-        log.debug("--------NEW-APIKEY:"+apikey)
         user_name = None
-
-        #"authorization: bearier {JWT}"
-        if self.authorization_header == "authorization":
-            if apikey.startswith('Bearer '):
-                apikey = apikey[7:].strip()
-            else:
-                apikey = ''
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
             try:
                 token = {'access_token': apikey}
                 user_name = self.oauth2helper.identify(token)
-                for e in environ:
-                   log.debug("--------ENVIRON:"+e)
                 
-#                self.oauth2helper.remember(user_name)
-                self.oauth2helper.update_token(user_name, token)
-                #self.oauth2helper.redirect_from_callback()
-                #environ['repoze.who.identity']['repoze.who.userid']=user_name
+                self.oauth2helper.validate_token(user_name, token)
+                
             except Exception:
                 log.exception("-----------EXCEPTION")
-                pass
+                raise
 
         # If the authentication via API fails, we can still log in the user using session.
         if user_name is None and 'repoze.who.identity' in environ:
@@ -171,19 +160,32 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             try:
                 self.oauth2helper.update_token(user_name, user_token)
                 log.debug("----------- SESSION VALIDATED")
-            except Exception:
-                log.exception("SESSION NOT VALIDATED-----------EXCEPTION")
+            except Exception as e:
+                g.user = None
+                toolkit.c.user = None
+                # If the callback is called with an error, we must show the message
+                error_description = toolkit.request.GET.get('error_description')
+                if not error_description:
+                    if e.message:
+                        error_description = e.message
+                    elif hasattr(e, 'description') and e.description:
+                        error_description = e.description
+                    elif hasattr(e, 'error') and e.error:
+                        error_description = e.error
+                    else:
+                        error_description = type(e).__name__
+                log.exception("-----CALLBACK---EXC")
+                toolkit.response.status_int = 302
+                redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
+                redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
+                toolkit.response.location = redirect_url
+                helpers.flash_error(error_description)
 
-#        if model.Session.get(
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
             g.user = user_name
             toolkit.c.user = user_name
-            # Save the user in the database
-#            model.Session.add(user_name)
-#            model.Session.commit()
-#            model.Session.remove()
             log.warn("-------------GETSTOREDTOKEN")
             toolkit.c.usertoken = self.oauth2helper.get_stored_token(user_name)
             log.warn("-------------REFRESHTOKEN")

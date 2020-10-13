@@ -55,76 +55,29 @@ class OAuth2Controller(base.BaseController):
         self.oauth2helper.challenge(came_from_url)
 
     def callback(self):
-        log.debug("-----CALLBACK---")
         try:
-            log.debug("-----CALLBACK---1")
             #token = self.oauth2helper.get_token()
-            
-            log.debug("-----CALLBACK---2")
             #user_name = self.oauth2helper.identify(token)
-            
-            authorization_header = "x-goog-iap-jwt-assertion".lower()
-    #  TODO USE ME      authorization_header = toolkit.config.get("ckan.oauth2.authorization_header", 'Authorization').lower()
+            #authorization_header = "x-goog-iap-jwt-assertion".lower()
+            authorization_header = toolkit.config.get("ckan.oauth2.authorization_header", 'Authorization').lower()
             log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
             for h in toolkit.response.headers:
                 log.debug("----HEADERS:---"+h)
             
             apikey = toolkit.request.headers.get(authorization_header, '')
-#        apikey = toolkit.request.headers.get(self.oauth2helper.authorization_header, '')
-            user_name = None
-            log.debug("-----CALLBACK---3"+apikey)
 
+            user_name = None
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
             if apikey:
+                # TODO let's see if firebase lib has a get_token()
                 token = {'access_token': apikey}
-                user_name = self.oauth2helper.identify(token)
- #                for e in environ:
- #                   log.debug("--------ENVIRON:"+e)
-                log.debug("-----CALLBACK---11")
-                self.oauth2helper.remember(user_name,token)
-                self.oauth2helper.update_token(user_name, token)
-                log.debug("-----CALLBACK---31")
-                #environ['repoze.who.identity']['repoze.who.userid']=user_name
+                new_token = self.oauth2helper.validate_token(token)
+                user_name = self.oauth2helper.identify(new_token)
+                self.oauth2helper.save_token(user_name, new_token)
+                self.oauth2helper.remember(user_name,new_token)
 
             self.oauth2helper.redirect_from_callback()
-
-        except Exception as e:
-
-            session.save()
-
-            # If the callback is called with an error, we must show the message
-            error_description = toolkit.request.GET.get('error_description')
-            if not error_description:
-                if e.message:
-                    error_description = e.message
-                elif hasattr(e, 'description') and e.description:
-                    error_description = e.description
-                elif hasattr(e, 'error') and e.error:
-                    error_description = e.error
-                else:
-                    error_description = type(e).__name__
-            log.exception("-----CALLBACK---EXC")
-            toolkit.response.status_int = 302
-            redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
-            redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
-            toolkit.response.location = redirect_url
-            helpers.flash_error(error_description)
-
-    def _callback(self):
-        log.debug("-----CALLBACK---")
-        try:
-            log.debug("-----CALLBACK---1")
-            token = self.oauth2helper.get_token()
-            log.debug("-----CALLBACK---2")
-            user_name = self.oauth2helper.identify(token)
-            log.debug("-----CALLBACK---3")
-            self.oauth2helper.remember(user_name, token)
-            log.debug("-----CALLBACK---4")
-            self.oauth2helper.update_token(user_name, token)
-            log.debug("-----CALLBACK---5")
-            self.oauth2helper.redirect_from_callback()
-            log.debug("-----CALLBACK---6")
 
         except Exception as e:
 
