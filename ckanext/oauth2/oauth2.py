@@ -95,8 +95,9 @@ class OAuth2Helper(object):
     def challenge(self, came_from_url):
         # This function is called by the log in function when the user is not logged in
         state = generate_state(came_from_url)
-        oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope, state=state)
-        auth_url, _ = oauth.authorization_url(self.authorization_endpoint)
+        #oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope, state=state)
+        #auth_url, _ = oauth.authorization_url(self.authorization_endpoint)
+        auth_url="https://data.review.fao.org/ckan-auth?redirect_uri=https://10.128.0.18/ckan/oauth2/callback"
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         # CKAN 2.6 only supports bytes
         response = toolkit.redirect_to(auth_url.encode('utf-8'))

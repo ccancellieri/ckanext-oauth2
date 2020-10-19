@@ -134,7 +134,7 @@ class OAuth2Controller(base.BaseController):
                 log.debug("-----CALLBACK---31")
                 #environ['repoze.who.identity']['repoze.who.userid']=user_name
 
-            self.oauth2helper.redirect_from_callback()
+#            self.oauth2helper.redirect_from_callback()
 
         except Exception as e:
 
@@ -153,10 +153,12 @@ class OAuth2Controller(base.BaseController):
                     error_description = type(e).__name__
             log.exception("-----CALLBACK---EXC")
             toolkit.response.status_int = 302
-            redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
-            redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
+#            redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
+#            redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
+# TODO ADD REDIRECT
             toolkit.response.location = redirect_url
             helpers.flash_error(error_description)
+        toolkit.redirect_to("https://data.review.fao.org/ckan".encode('utf-8'))
 
     def _callback(self):
         log.debug("-----CALLBACK---")
