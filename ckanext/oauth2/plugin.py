@@ -180,10 +180,10 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     
                 
             except Exception:
-                if user_name:
-                    model.Session.delete(user_name)
-                    model.Session.commit()
-                    model.Session.remove()
+                # if user_name:
+                #     model.Session.delete(user_name)
+                #     model.Session.commit()
+                #     model.Session.remove()
                 g.user = None
                 toolkit.c.user = None
                 log.exception("-----------EXCEPTION")
