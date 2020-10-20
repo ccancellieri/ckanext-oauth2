@@ -178,11 +178,12 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #
                     raise Exception("")
                     
-                log.debug("-----SESSION FOR: "+user_name+" still valid")
+                
             except Exception:
-                model.Session.delete(user_name)
-                model.Session.commit()
-                model.Session.remove()
+                if user_name:
+                    model.Session.delete(user_name)
+                    model.Session.commit()
+                    model.Session.remove()
                 g.user = None
                 toolkit.c.user = None
                 log.exception("-----------EXCEPTION")
