@@ -82,8 +82,7 @@ class OAuth2Helper(object):
 #        self.authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", config.get('ckan.oauth2.authorization_header', 'Authorization')).lower()
 #	self.redirect_uri = toolkit.config.get('ckan.site_url', 'http://localhost:5000') + toolkit.config.get('ckan.root_path')+'/'+ constants.REDIRECT_URL
 	    
-        log.debug("***************"+urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL))
-        
+        self.ckan_url = urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path'))
         
         ## proxy-backend url which is proxied by the GCIP IAP
         self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.firebase.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
@@ -137,56 +136,29 @@ class OAuth2Helper(object):
 
         return token
 
-    def flatten_dict(self, d):
-        def expand(key, value):
-            if isinstance(value, dict):
-                return [ (key + '.' + k, v) for k, v in self.flatten_dict(value).items() ]
-            else:
-                return [ (key, value) ]
-        items = [ item for k, v in d.items() for item in expand(k, v) ]
-        return dict(items)
 
     def identify(self, token):
+        
+        def flatten_dict(self, d):
+            def expand(key, value):
+                if isinstance(value, dict):
+                    return [ (key + '.' + k, v) for k, v in self.flatten_dict(value).items() ]
+                else:
+                    return [ (key, value) ]
+            items = [ item for k, v in d.items() for item in expand(k, v) ]
+            return dict(items)
 
-        if self.jwt_enable:
-            access_token = bytes(token['access_token'])
-            try:
-                # TODO VALIDATION
-                # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
-                user_data = jwt.decode(access_token, verify=False)
-                #log.debug("JWT:"+str(user_data))
-            except Exception as e:
+        access_token = bytes(token['access_token'])
+        try:
+            # TODO VALIDATION
+            # https://cloud.google.com/iap/docs/signed-headers-howto#iap_validate_jwt-python
+            user_data = jwt.decode(access_token, verify=False)
+            #log.debug("JWT:"+str(user_data))
+        except Exception as e:
 #jwt.ExpiredSignatureError:
-                log.exception('Unable to validate JWT token: '+str(e))
-                raise
-            user = self.user_json(self.flatten_dict(user_data))
-        else:
-
-            try:
-                if self.legacy_idm:
-                    profile_response = requests.get(self.profile_api_url + '?access_token=%s' % token['access_token'], verify=self.verify_https)
-                else:
-                    oauth = OAuth2Session(self.client_id, token=token)
-                    profile_response = oauth.get(self.profile_api_url, verify=self.verify_https)
-
-            except requests.exceptions.SSLError as e:
-                # TODO search a better way to detect invalid certificates
-                if "verify failed" in six.text_type(e):
-                    raise InsecureTransportError()
-                else:
-                    raise
-
-            # Token can be invalid
-            if not profile_response.ok:
-                error = profile_response.json()
-                if error.get('error', '') == 'invalid_token':
-                    raise ValueError(error.get('error_description'))
-                else:
-                    profile_response.raise_for_status()
-            else:
-                user_data = profile_response.json()
-                user = self.user_json(user_data)
-
+            log.exception('Unable to validate JWT token: '+str(e))
+            raise
+        user = self.user_json(self.flatten_dict(user_data))
         # Save the user in the database
         model.Session.add(user)
         model.Session.commit()
@@ -243,13 +215,6 @@ class OAuth2Helper(object):
         for header, value in headers:
             log.debug("-------------H:"+header+"---V:"+value)
             toolkit.response.headers.add(header, value)
-
-    def redirect_from_callback(self):
-        '''Redirect to the callback URL after a successful authentication.'''
-        state = toolkit.request.params.get('state')
-        came_from = get_came_from(state)
-        toolkit.response.status = 302
-        toolkit.response.location = came_from
 
     def get_stored_token(self, user_name):
         user_token = db.UserToken.by_user_name(user_name=user_name)
