@@ -179,7 +179,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     g.user = ''
                     toolkit.c.user = ''
                     # self.oauth2helper.login()
-                    toolkit.redirect_to('/user/login'.encode('utf-8'))
+                    toolkit.get_action('login')(toolkit.c)
+                    # toolkit.redirect_to('/user/login'.encode('utf-8'))
                     
                     return #TODO temp fix redirect does not works!
                 
