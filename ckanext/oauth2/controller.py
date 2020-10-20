@@ -45,11 +45,6 @@ class OAuth2Controller(base.BaseController):
 
     def login(self):
         log.debug('login')
-        pp=_get_previous_page("https://data.review.fao.org/ckan")
-        log.debug('previous page: '+pp)
-        self._login(pp)
-
-    def _login(self, previous_page)
         auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
@@ -116,4 +111,6 @@ class OAuth2Controller(base.BaseController):
             helpers.flash_error(error_description)
 
         # TODO redirect to the previous page... (environ??)
-        toolkit.redirect_to(self.oauth2helper.ckan_url.encode('utf-8'))
+        pp=_get_previous_page("https://data.review.fao.org/ckan")
+        log.debug('previous page: '+pp)
+        toolkit.redirect_to(pp.encode('utf-8'))
