@@ -46,7 +46,7 @@ class OAuth2Controller(base.BaseController):
     def login(self):
         log.debug('login')
         
-        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_url='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
+        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         
