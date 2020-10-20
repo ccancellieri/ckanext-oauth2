@@ -127,10 +127,6 @@ class OAuth2Helper(object):
             log.exception('Unable to validate JWT token: '+str(e))
             raise
         user = self.user_json(flatten_dict(user_data))
-        # Save the user in the database
-        model.Session.add(user)
-        model.Session.commit()
-        model.Session.remove()
 
         return user.name
 

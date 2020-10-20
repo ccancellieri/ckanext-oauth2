@@ -52,7 +52,7 @@ class OAuth2Controller(base.BaseController):
         
         toolkit.redirect_to(auth_url.encode('utf-8'))
 
-    def callback(self, current_page):
+    def callback(self):
         log.debug("-----CALLBACK---")
         try:
             

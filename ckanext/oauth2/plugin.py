@@ -175,13 +175,13 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             try:
                 if self.oauth2helper.check_user_token_exp(user_name):
                     log.warning("Session expired for user "+user_name+" redirecting....")
-                    toolkit.redirect_to(self.oauth2helper.ckan_url+"/user/login".encode('utf-8'))
+                    toolkit.redirect_to("/user/login".encode('utf-8'))
                 
             except Exception as e:
-                if user_name:
-                    model.Session.delete(user_name)
-                    model.Session.commit()
-                    model.Session.remove()
+                # if user_name:
+                    # model.Session.delete(user_name)
+                    # model.Session.commit()
+                    # model.Session.remove()
                 g.user = ''
                 toolkit.c.user = ''
                 log.exception("-----------EXCEPTION"+str(e))
@@ -194,9 +194,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             g.user = user_name
             toolkit.c.user = user_name
             # Save the user in the database
-#            model.Session.add(user_name)
-#            model.Session.commit()
-#            model.Session.remove()
+            model.Session.add(user_name)
+            model.Session.commit()
+            model.Session.remove()
             log.warn("-------------GETSTOREDTOKEN")
             toolkit.c.usertoken = self.oauth2helper.get_stored_token(user_name)
             log.warn("-------------REFRESHTOKEN")
