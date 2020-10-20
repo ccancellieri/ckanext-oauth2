@@ -81,8 +81,22 @@ class OAuth2Helper(object):
 	self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL)
 #        self.authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", config.get('ckan.oauth2.authorization_header', 'Authorization')).lower()
 #	self.redirect_uri = toolkit.config.get('ckan.site_url', 'http://localhost:5000') + toolkit.config.get('ckan.root_path')+'/'+ constants.REDIRECT_URL
-	log.debug("***************"+urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL))
+	    
+        log.debug("***************"+urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL))
+        
+        
+        ## proxy-backend url which is proxied by the GCIP IAP
+        self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.firebase.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
+        ## local ckan ip used to redirect back the call from proxy-backend (shipping the jwt token)
+        self.local_ip = six.text_type(toolkit.config.get('ckan.firebase.local_ip', 'http://localhost')).strip()
+        ## path mapped by the controller which will register/identify the user after the challenge (callback)
+        self.redirect_back_path = six.text_type(toolkit.config.get('ckan.firebase.redirect_back_path', '/oauth2/callback')).strip()
+        
 
+# toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')
+        
+        #" https://data.review.fao.org/ckan-auth ?redirect_uri= https://10.128.0.18 /ckan /oauth2/callback"
+        
         # Init db
         db.init_db(model)
 
@@ -92,12 +106,12 @@ class OAuth2Helper(object):
         elif self.scope == "":
             self.scope = None
 
-    def challenge(self, came_from_url):
-        # This function is called by the log in function when the user is not logged in
-        state = generate_state(came_from_url)
-        #oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope, state=state)
-        #auth_url, _ = oauth.authorization_url(self.authorization_endpoint)
-        auth_url="https://data.review.fao.org/ckan-auth?redirect_uri=https://10.128.0.18/ckan/oauth2/callback"
+    def challenge(self):
+
+        ## TODO use urljoin or string formatter
+        auth_url=self.authorization_endpoint+'?redirect_url='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path
+        # auth_url="https://data.review.fao.org/ckan-auth?redirect_uri=https://10.128.0.18/ckan/oauth2/callback"
+        
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         # CKAN 2.6 only supports bytes
         response = toolkit.redirect_to(auth_url.encode('utf-8'))

@@ -33,6 +33,8 @@ import os
 from urllib2 import Request, urlopen
 from ckanext.oauth2.plugin import _get_previous_page
 
+from six.moves.urllib.parse import urljoin
+
 log = logging.getLogger(__name__)
 
 
@@ -41,7 +43,7 @@ class OAuth2Controller(base.BaseController):
     def __init__(self):
         self.oauth2helper = oauth2.OAuth2Helper()
 
-    def login(self):
+    def _login(self):
         log.debug('login')
 
         # Log in attemps are fired when the user is not logged in and they click
@@ -50,14 +52,18 @@ class OAuth2Controller(base.BaseController):
         # Get the page where the user was when the loggin attemp was fired
         # When the user is not logged in, he/she should be redirected to the dashboard when
         # the system cannot get the previous page
-        came_from_url = _get_previous_page(constants.INITIAL_PAGE)
 
-        self.oauth2helper.challenge(came_from_url)
+        #came_from_url = _get_previous_page(constants.INITIAL_PAGE)
+        
+        self.oauth2helper.challenge()
 
-    def _login(self):
-        log.debug('login')
+    def login(self):
+        log.debug('_login')
+        
+        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_url='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
+        
 
-        res = urlopen(Request(self.oauth2helper.authorization_endpoint.encode('utf-8')))
+        res = urlopen(Request(auth_url.encode('utf-8')))
 #        res = requests.get(self.oauth2helper.authorization_endpoint.encode('utf-8'))
 #                    headers=headers)
 
@@ -85,7 +91,7 @@ class OAuth2Controller(base.BaseController):
                 user_name = self.oauth2helper.identify(token)
                 for e in environ:
                    log.debug("--------ENVIRON:"+e)
-                #self.oauth2helper.remember(user_name)
+                # self.oauth2helper.remember(user_name)
                 #self.oauth2helper.update_token(user_name, token)
                 #self.oauth2helper.redirect_from_callback()
                 #environ['repoze.who.identity']['repoze.who.userid']=user_name
@@ -93,13 +99,13 @@ class OAuth2Controller(base.BaseController):
                 log.exception("-----------EXCEPTION")
                 pass
 
-        toolkit.redirect_to("https://data.review.fao.org/ckan".encode('utf-8'))
-
         # Get the params that were posted to /user/login.
         params = toolkit.request.params
+        for p in params:
+                log.debug("-------------Req:---"+p)
 
-	for p in params:
-            log.debug("-------------Req:---"+p)
+        redirect_back=urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path'))
+        toolkit.redirect_to(redirect_back.encode('utf-8'))
 
     def callback(self):
         log.debug("-----CALLBACK---")

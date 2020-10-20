@@ -93,8 +93,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
 
     def __init__(self, name=None):
-        '''Store the OAuth 2 client configuration'''
-        log.debug('Init OAuth2 extension')
+        # '''Store the Firebase client configuration'''
+
+        log.debug('Init Firebase extension')
 
         self.oauth2helper = oauth2.OAuth2Helper()
 
@@ -107,9 +108,12 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # We need to handle petitions received to the Callback URL
         # since some error can arise and we need to process them
-        m.connect('/oauth2/callback',
+        m.connect(self.oauth2helper.redirect_back_path,#'/oauth2/callback',
                   controller='ckanext.oauth2.controller:OAuth2Controller',
                   action='callback')
+
+        #########################################################
+        ### TODO disable the following paths!!!
 
         # Redirect the user to the OAuth service register page
         if self.register_url:
@@ -122,7 +126,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         # Redirect the user to the OAuth service reset page
         if self.edit_url:
             m.redirect('/user/edit/{user}', self.edit_url)
-
+        #########################################################
+        
         return m
 
     def identify(self):
