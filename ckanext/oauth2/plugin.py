@@ -23,7 +23,7 @@ from __future__ import unicode_literals
 import logging
 import oauth2
 import os
-
+import requests
 from functools import partial
 from ckan import plugins
 from ckan.common import g
@@ -178,9 +178,13 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                     g.user = ''
                     toolkit.c.user = ''
-                    #auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
+                    auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
+                    r = requests.post(auth_url)
+                    
+                    for h in r.headers:
+                        log.debug("--------HEADERs:"+h)
                     # toolkit.redirect_to(auth_url.encode('utf-8'))
-                    toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    # toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # self.oauth2helper.login()
                     # toolkit.get_action('login')(toolkit.c)
                     # toolkit.redirect_to('/user/login'.encode('utf-8'))
