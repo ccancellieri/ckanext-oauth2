@@ -81,7 +81,7 @@ class OAuth2Controller(base.BaseController):
                 log.debug("-----CALLBACK---1")
                 # token = self.oauth2helper.get_token()
                 log.debug("-----CALLBACK---2")
-                user_name = self.oauth2helper.identify(token)
+                user_name = self.oauth2helper.token_identify(token)
                 log.debug("-----CALLBACK---3")
                 self.oauth2helper.remember(user_name)
                 log.debug("-----CALLBACK---4")
