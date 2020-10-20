@@ -39,7 +39,7 @@ import six
 import jwt
 
 import constants
-
+from datetime import datetime
 
 log = logging.getLogger(__name__)
 
@@ -237,9 +237,6 @@ class OAuth2Helper(object):
         decoded_token = jwt.decode(access_token, verify=False)
         return self.check_token_exp(decoded_token)
     
-
-from datetime import datetime
-
     def update_token(self, user_name, token):
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
