@@ -182,10 +182,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     # model.Session.delete(user_name)
                     # model.Session.commit()
                     # model.Session.remove()
-                g.user = ''
-                toolkit.c.user = ''
                 log.exception("-----------EXCEPTION"+str(e))
-                return
 
 #        if model.Session.get(
 
@@ -204,6 +201,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             log.warn("-------------DONE")
         else:
             g.user = None
+            #toolkit.c.user = None #TODO needed?
             log.warn('The user is not currently logged...')
 
 
