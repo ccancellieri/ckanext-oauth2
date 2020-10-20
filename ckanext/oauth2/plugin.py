@@ -173,15 +173,16 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
             try:
-                if self.oauth2helper.check_user_token_exp(user_name):
+                if user_name and self.oauth2helper.check_user_token_exp(user_name):
                     log.warning("Session expired for user "+user_name+" redirecting....")
-                    toolkit.redirect_to("/user/login".encode('utf-8'))
+                    #logout
+                    g.user = ''
+                    toolkit.c.user = ''
+                    toolkit.redirect_to('/user/login'.encode('utf-8'))
+                    
+                    return #TODO temp fix redirect does not works!
                 
             except Exception as e:
-                # if user_name:
-                    # model.Session.delete(user_name)
-                    # model.Session.commit()
-                    # model.Session.remove()
                 log.exception("-----------EXCEPTION"+str(e))
 
 #        if model.Session.get(
