@@ -183,7 +183,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     r = requests.get(auth_url)
                     
                     for h in r.headers:
-                        log.debug("--------HEADERs:"+h)
+                        log.debug("--------HEADERs:"+h+" - "+r.headers[h])
                     # log.debug("--------code:"+r.code)
                     # response_dict = json.loads(r.content)
                     # log.debug("--------body:"+response_dict)
