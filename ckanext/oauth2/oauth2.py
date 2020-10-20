@@ -232,7 +232,7 @@ class OAuth2Helper(object):
     def check_user_token_exp(self, user_name):
         user_token = self.get_stored_token(user_name)
         if not user_token:
-            return raise Exception("Missing stored token")
+            raise Exception("Missing stored token")
         access_token = user_token['access_token']
         decoded_token = jwt.decode(access_token, verify=False)
         return self.check_token_exp(decoded_token)
