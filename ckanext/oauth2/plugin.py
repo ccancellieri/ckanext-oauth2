@@ -178,8 +178,10 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                     g.user = ''
                     toolkit.c.user = ''
+                    auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
+                    toolkit.redirect_to(auth_url.encode('utf-8'))
                     # self.oauth2helper.login()
-                    toolkit.get_action('login')(toolkit.c)
+                    # toolkit.get_action('login')(toolkit.c)
                     # toolkit.redirect_to('/user/login'.encode('utf-8'))
                     
                     return #TODO temp fix redirect does not works!
