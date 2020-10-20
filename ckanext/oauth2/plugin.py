@@ -141,7 +141,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         for h in toolkit.response.headers:
             log.debug("----HEADERS:---"+h)
         
-        apikey = toolkit.request.headers.get(self.authorization_header, '')
+        apikey = toolkit.request.headers.get(authorization_header, '')
         user_name = None
 
         if self.authorization_header == "authorization":
