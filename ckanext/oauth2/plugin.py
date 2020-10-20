@@ -179,7 +179,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     g.user = ''
                     toolkit.c.user = ''
                     auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
-                    r = requests.post(auth_url)
+                    r = requests.get(auth_url)
                     
                     for h in r.headers:
                         log.debug("--------HEADERs:"+h)
