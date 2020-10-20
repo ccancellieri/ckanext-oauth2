@@ -112,7 +112,7 @@ class OAuth2Controller(base.BaseController):
 #            redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
 #            redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
 # TODO ADD REDIRECT
-            toolkit.response.location = redirect_url
+            toolkit.response.location = self.oauth2helper.ckan_url
             helpers.flash_error(error_description)
 
 

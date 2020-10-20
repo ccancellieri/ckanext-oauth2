@@ -138,7 +138,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         authorization_header = "x-goog-iap-jwt-assertion".lower()
 #        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
         log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
-        for h in toolkit.response.headers:
+        for h in toolkit.request.headers:
             log.debug("----HEADERS:---"+h)
         
         apikey = toolkit.request.headers.get(authorization_header, '')
@@ -150,7 +150,6 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             else:
                 apikey = ''
         
-        environ = toolkit.request.environ
         if apikey is '':
            apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
            log.debug("--------NEW-APIKEY:"+apikey)
@@ -173,6 +172,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 pass
 
         # If the authentication via API fails, we can still log in the user using session.
+        environ = toolkit.request.environ
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
