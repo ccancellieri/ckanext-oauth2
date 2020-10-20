@@ -192,9 +192,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             g.user = user_name
             toolkit.c.user = user_name
             # Save the user in the database
-            model.Session.add(user_name)
-            model.Session.commit()
-            model.Session.remove()
+            # model.Session.add(user_name)
+            # model.Session.commit()
+            # model.Session.remove()
             log.warn("-------------GETSTOREDTOKEN")
             toolkit.c.usertoken = self.oauth2helper.get_stored_token(user_name)
             log.warn("-------------REFRESHTOKEN")
