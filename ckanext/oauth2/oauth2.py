@@ -137,7 +137,7 @@ class OAuth2Helper(object):
         return token
 
 
-    def identify(self, token):
+    def token_identify(self, token):
         
         def flatten_dict(d):
             def expand(key, value):
