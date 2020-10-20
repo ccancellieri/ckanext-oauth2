@@ -129,7 +129,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
     def identify(self):
         log.debug('identify')
-
+        environ = toolkit.request.environ
         def _refresh_and_save_token(user_name):
             new_token = self.oauth2helper.refresh_token(user_name)
             if new_token:
@@ -172,7 +172,6 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 pass
 
         # If the authentication via API fails, we can still log in the user using session.
-        environ = toolkit.request.environ
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
