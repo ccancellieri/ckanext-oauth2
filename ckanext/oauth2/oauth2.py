@@ -139,7 +139,7 @@ class OAuth2Helper(object):
 
     def identify(self, token):
         
-        def flatten_dict(self, d):
+        def flatten_dict(d):
             def expand(key, value):
                 if isinstance(value, dict):
                     return [ (key + '.' + k, v) for k, v in self.flatten_dict(value).items() ]
