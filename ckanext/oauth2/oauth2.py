@@ -105,38 +105,6 @@ class OAuth2Helper(object):
         elif self.scope == "":
             self.scope = None
 
-
-    # def get_token(self):
-    #     oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
-
-    #     # Just because of FIWARE Authentication
-    #     headers = {
-    #         'Accept': 'application/json',
-    #         'Content-Type': 'application/x-www-form-urlencoded',
-    #     }
-
-    #     if self.legacy_idm:
-    #         # This is only required for Keyrock v6 and v5
-    #         headers['Authorization'] = 'Basic %s' % base64.urlsafe_b64encode(
-    #             '%s:%s' % (self.client_id, self.client_secret)
-    #         )
-
-    #     try:
-    #         token = oauth.fetch_token(self.token_endpoint,
-    #                                   headers=headers,
-    #                                   client_secret=self.client_secret,
-    #                                   authorization_response=toolkit.request.url,
-    #                                   verify=self.verify_https)
-    #     except requests.exceptions.SSLError as e:
-    #         # TODO search a better way to detect invalid certificates
-    #         if "verify failed" in six.text_type(e):
-    #             raise InsecureTransportError()
-    #         else:
-    #             raise
-
-    #     return token
-
-
     def token_identify(self, token):
         
         def flatten_dict(d):

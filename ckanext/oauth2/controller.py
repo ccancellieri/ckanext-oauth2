@@ -52,7 +52,7 @@ class OAuth2Controller(base.BaseController):
         
         toolkit.redirect_to(auth_url.encode('utf-8'))
 
-    def callback(self):
+    def callback(self, current_page):
         log.debug("-----CALLBACK---")
         try:
             
@@ -86,9 +86,6 @@ class OAuth2Controller(base.BaseController):
                 log.debug("-----CALLBACK---4")
                 self.oauth2helper.update_token(user_name, token)
                 log.debug("-----CALLBACK---5---")
-                # self.oauth2helper.redirect_from_callback()
-                log.debug("-----CALLBACK---6")
-                
 
         except Exception as e:
 
@@ -110,9 +107,9 @@ class OAuth2Controller(base.BaseController):
             toolkit.response.status_int = 302
 #            redirect_url = oauth2.get_came_from(toolkit.request.params.get('state'))
 #            redirect_url = '/' if redirect_url == constants.INITIAL_PAGE else redirect_url
-# TODO ADD REDIRECT
+# TODO check REDIRECT
             toolkit.response.location = self.oauth2helper.ckan_url
             helpers.flash_error(error_description)
 
-
+        # TODO redirect to the previous page... (environ??)
         toolkit.redirect_to(self.oauth2helper.ckan_url.encode('utf-8'))

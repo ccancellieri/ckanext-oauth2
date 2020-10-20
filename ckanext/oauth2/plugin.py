@@ -146,9 +146,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         user_name = None
 
         ### TODO TESTME
-        if apikey is '':
-           apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
-           log.debug("--------NEW-APIKEY:"+apikey)
+        # if apikey is '':
+        #    apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
+        #    log.debug("--------NEW-APIKEY:"+apikey)
 
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
@@ -175,18 +175,16 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             try:
                 if self.oauth2helper.check_user_token_exp(user_name):
                     log.warning("Session expired for user "+user_name+" redirecting....")
-                    #
-                    raise Exception("")
-                    
+                    toolkit.redirect_to(self.oauth2helper.ckan_url+"/user/login".encode('utf-8'))
                 
-            except Exception:
-                # if user_name:
-                #     model.Session.delete(user_name)
-                #     model.Session.commit()
-                #     model.Session.remove()
-                g.user = None
-                toolkit.c.user = None
-                log.exception("-----------EXCEPTION")
+            except Exception as e:
+                if user_name:
+                    model.Session.delete(user_name)
+                    model.Session.commit()
+                    model.Session.remove()
+                g.user = ''
+                toolkit.c.user = ''
+                log.exception("-----------EXCEPTION"+str(e))
                 return
 
 #        if model.Session.get(
