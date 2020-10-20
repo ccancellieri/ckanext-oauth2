@@ -29,7 +29,7 @@ from ckan import plugins
 from ckan.common import g
 from ckan.plugins import toolkit
 from urlparse import urlparse
-
+import json
 import ckan.model as model
 
 log = logging.getLogger(__name__)
@@ -183,6 +183,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     
                     for h in r.headers:
                         log.debug("--------HEADERs:"+h)
+                    log.debug("--------code:"+r.code)
+                    response_dict = json.loads(r.content)
+                    log.debug("--------body:"+str(response_dict))
                     # toolkit.redirect_to(auth_url.encode('utf-8'))
                     # toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # self.oauth2helper.login()
