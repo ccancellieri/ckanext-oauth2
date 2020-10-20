@@ -106,16 +106,6 @@ class OAuth2Helper(object):
         elif self.scope == "":
             self.scope = None
 
-    def challenge(self):
-
-        ## TODO use urljoin or string formatter
-        auth_url=self.authorization_endpoint+'?redirect_url='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path
-        # auth_url="https://data.review.fao.org/ckan-auth?redirect_uri=https://10.128.0.18/ckan/oauth2/callback"
-        
-        log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
-        # CKAN 2.6 only supports bytes
-        response = toolkit.redirect_to(auth_url.encode('utf-8'))
-
 
     def get_token(self):
         oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
