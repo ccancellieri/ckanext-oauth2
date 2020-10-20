@@ -135,21 +135,17 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             if new_token:
                 toolkit.c.usertoken = new_token
         
-        authorization_header = "x-goog-iap-jwt-assertion".lower()
-#        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
-        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
-#        for h in toolkit.request.headers:
-#            log.debug("----HEADERS:---"+h)
-        
+        # authorization_header = "x-goog-iap-jwt-assertion".lower()
+        authorization_header = "authorization"
         apikey = toolkit.request.headers.get(authorization_header, '')
-        user_name = None
-
-        if self.authorization_header == "authorization":
+        
+        if authorization_header == "authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
-            else:
-                apikey = ''
         
+        user_name = None
+
+        ### TODO TESTME
         if apikey is '':
            apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
            log.debug("--------NEW-APIKEY:"+apikey)
@@ -159,12 +155,13 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if apikey:
             try:
                 token = {'access_token': apikey}
-                user_name = self.oauth2helper.identify(token)
+                user_name = self.oauth2helper.token_identify(token)
                 for e in environ:
                    log.debug("--------ENVIRON:"+e)
                 
 #                self.oauth2helper.remember(user_name)
-                #self.oauth2helper.update_token(user_name, token)
+                
+
                 #self.oauth2helper.redirect_from_callback()
                 #environ['repoze.who.identity']['repoze.who.userid']=user_name
             except Exception:
@@ -175,6 +172,21 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
+            try:
+                if self.oauth2helper.check_user_token_exp(user_name):
+                    log.warning("Session expired for user "+user_name+" redirecting....")
+                    #
+                    raise Exception("")
+                    
+                log.debug("-----SESSION FOR: "+user_name+" still valid")
+            except Exception:
+                model.Session.delete(user_name)
+                model.Session.commit()
+                model.Session.remove()
+                g.user = None
+                toolkit.c.user = None
+                log.exception("-----------EXCEPTION")
+                return
 
 #        if model.Session.get(
 

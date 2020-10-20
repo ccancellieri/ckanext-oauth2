@@ -56,20 +56,19 @@ class OAuth2Controller(base.BaseController):
         log.debug("-----CALLBACK---")
         try:
             
-            authorization_header = "x-goog-iap-jwt-assertion".lower()
-
+            # authorization_header = "x-goog-iap-jwt-assertion".lower()
+            authorization_header = "authorization"
+            apikey = toolkit.request.headers.get(authorization_header, '')
             if authorization_header == "authorization":
                 if apikey.startswith('Bearer '):
                     apikey = apikey[7:].strip()
-                else:
-                    apikey = ''
             
     #        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
             log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
             for h in toolkit.response.headers:
                 log.debug("----HEADERS:---"+h)
             
-            apikey = toolkit.request.headers.get(authorization_header, '')
+            
 #        apikey = toolkit.request.headers.get(self.oauth2helper.authorization_header, '')
             user_name = None
             log.debug("-----CALLBACK---3"+apikey)
@@ -85,8 +84,8 @@ class OAuth2Controller(base.BaseController):
                 log.debug("-----CALLBACK---3")
                 self.oauth2helper.remember(user_name)
                 log.debug("-----CALLBACK---4")
-                # self.oauth2helper.update_token(user_name, token)
-                log.debug("-----CALLBACK---5")
+                self.oauth2helper.update_token(user_name, token)
+                log.debug("-----CALLBACK---5---")
                 # self.oauth2helper.redirect_from_callback()
                 log.debug("-----CALLBACK---6")
                 

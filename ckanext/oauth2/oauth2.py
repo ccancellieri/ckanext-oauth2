@@ -106,35 +106,35 @@ class OAuth2Helper(object):
             self.scope = None
 
 
-    def get_token(self):
-        oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
+    # def get_token(self):
+    #     oauth = OAuth2Session(self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
 
-        # Just because of FIWARE Authentication
-        headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+    #     # Just because of FIWARE Authentication
+    #     headers = {
+    #         'Accept': 'application/json',
+    #         'Content-Type': 'application/x-www-form-urlencoded',
+    #     }
 
-        if self.legacy_idm:
-            # This is only required for Keyrock v6 and v5
-            headers['Authorization'] = 'Basic %s' % base64.urlsafe_b64encode(
-                '%s:%s' % (self.client_id, self.client_secret)
-            )
+    #     if self.legacy_idm:
+    #         # This is only required for Keyrock v6 and v5
+    #         headers['Authorization'] = 'Basic %s' % base64.urlsafe_b64encode(
+    #             '%s:%s' % (self.client_id, self.client_secret)
+    #         )
 
-        try:
-            token = oauth.fetch_token(self.token_endpoint,
-                                      headers=headers,
-                                      client_secret=self.client_secret,
-                                      authorization_response=toolkit.request.url,
-                                      verify=self.verify_https)
-        except requests.exceptions.SSLError as e:
-            # TODO search a better way to detect invalid certificates
-            if "verify failed" in six.text_type(e):
-                raise InsecureTransportError()
-            else:
-                raise
+    #     try:
+    #         token = oauth.fetch_token(self.token_endpoint,
+    #                                   headers=headers,
+    #                                   client_secret=self.client_secret,
+    #                                   authorization_response=toolkit.request.url,
+    #                                   verify=self.verify_https)
+    #     except requests.exceptions.SSLError as e:
+    #         # TODO search a better way to detect invalid certificates
+    #         if "verify failed" in six.text_type(e):
+    #             raise InsecureTransportError()
+    #         else:
+    #             raise
 
-        return token
+    #     return token
 
 
     def token_identify(self, token):
@@ -220,46 +220,56 @@ class OAuth2Helper(object):
         user_token = db.UserToken.by_user_name(user_name=user_name)
         if user_token:
             return {
-                'access_token': user_token.access_token,
-                'refresh_token': user_token.refresh_token,
-                'expires_in': user_token.expires_in,
-                'token_type': user_token.token_type
+                'access_token': user_token.access_token
             }
+    
+    def check_token_exp(self, decoded_token):
+        log.debug("-----Token expiration: "+str(datetime.fromtimestamp(decoded_token['exp'])))
+        log.debug("-----Current time: "+str(datetime.utcnow()))
+        return datetime.fromtimestamp(decoded_token['exp']) < datetime.utcnow()
+
+
+    def check_user_token_exp(self, user_name):
+        user_token = self.get_stored_token(user_name)
+        if not user_token:
+            return raise Exception("Missing stored token")
+        access_token = user_token['access_token']
+        decoded_token = jwt.decode(access_token, verify=False)
+        return self.check_token_exp(decoded_token)
+    
+
+from datetime import datetime
 
     def update_token(self, user_name, token):
 
         user_token = db.UserToken.by_user_name(user_name=user_name)
+
         # Create the user if it does not exist
         if not user_token:
             user_token = db.UserToken()
             user_token.user_name = user_name
+
         # Save the new token
         user_token.access_token = token['access_token']
-        user_token.token_type = token['token_type']
-        user_token.refresh_token = token.get('refresh_token')
-        if 'expires_in' in token:
-            user_token.expires_in = token['expires_in']
-        else:
-            access_token = jwt.decode(user_token.access_token, verify=False)
-            user_token.expires_in = access_token['exp'] - access_token['iat']
-
+        
         model.Session.add(user_token)
         model.Session.commit()
 
-    def refresh_token(self, user_name):
-        token = self.get_stored_token(user_name)
-        if token:
-            client = OAuth2Session(self.client_id, token=token, scope=self.scope)
-            try:
-                token = client.refresh_token(self.token_endpoint, client_secret=self.client_secret, client_id=self.client_id, verify=self.verify_https)
-            except requests.exceptions.SSLError as e:
-                # TODO search a better way to detect invalid certificates
-                if "verify failed" in six.text_type(e):
-                    raise InsecureTransportError()
-                else:
-                    raise
-            self.update_token(user_name, token)
-            log.info('Token for user %s has been updated properly' % user_name)
-            return token
-        else:
-            log.warn('User %s has no refresh token' % user_name)
+        
+    # def refresh_token(self, user_name):
+    #     token = self.get_stored_token(user_name)
+    #     if token:
+    #         client = OAuth2Session(self.client_id, token=token, scope=self.scope)
+    #         try:
+    #             token = client.refresh_token(self.token_endpoint, client_secret=self.client_secret, client_id=self.client_id, verify=self.verify_https)
+    #         except requests.exceptions.SSLError as e:
+    #             # TODO search a better way to detect invalid certificates
+    #             if "verify failed" in six.text_type(e):
+    #                 raise InsecureTransportError()
+    #             else:
+    #                 raise
+    #         self.update_token(user_name, token)
+    #         log.info('Token for user %s has been updated properly' % user_name)
+    #         return token
+    #     else:
+    #         log.warn('User %s has no refresh token' % user_name)
