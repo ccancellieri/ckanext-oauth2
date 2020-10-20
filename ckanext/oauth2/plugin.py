@@ -138,8 +138,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         authorization_header = "x-goog-iap-jwt-assertion".lower()
 #        authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", 'Authorization').lower()
         log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
-        for h in toolkit.request.headers:
-            log.debug("----HEADERS:---"+h)
+#        for h in toolkit.request.headers:
+#            log.debug("----HEADERS:---"+h)
         
         apikey = toolkit.request.headers.get(authorization_header, '')
         user_name = None
