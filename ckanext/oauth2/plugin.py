@@ -179,21 +179,21 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     g.user = ''
                     toolkit.c.user = ''
                     # auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
-                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
-                    r = requests.get(auth_url)
+#                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
+#                    r = requests.get(auth_url)
                     
-                    for h in r.headers:
-                        log.debug("--------HEADERs:"+h+" - "+r.headers[h])
+#                    for h in r.headers:
+#                        log.debug("--------HEADERs:"+h+" - "+r.headers[h])
                     # log.debug("--------code:"+r.code)
                     # response_dict = json.loads(r.content)
                     # log.debug("--------body:"+response_dict)
                     # toolkit.redirect_to(auth_url.encode('utf-8'))
-                    # toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # self.oauth2helper.login()
                     # toolkit.get_action('login')(toolkit.c)
                     # toolkit.redirect_to('/user/login'.encode('utf-8'))
                     
-                    return #TODO temp fix redirect does not works!
+#                    return #TODO temp fix redirect does not works!
                 
             except Exception as e:
                 log.exception("-----------EXCEPTION"+str(e))
