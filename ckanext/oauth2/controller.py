@@ -112,3 +112,6 @@ class OAuth2Controller(base.BaseController):
             toolkit.response.location = self.oauth2helper.ckan_url
             helpers.flash_error(error_description)
 
+        came_from = self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+	    log.debug('previous page: '+came_from)
+        toolkit.redirect_to(came_from.encode('utf-8'))
