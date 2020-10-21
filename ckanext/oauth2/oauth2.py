@@ -179,6 +179,7 @@ class OAuth2Helper(object):
         return plugins.get(self.rememberer_name)
 
     def _get_previous_page(self, default_page):
+        from urlparse import urlparse
         if 'came_from' not in toolkit.request.params:
             came_from_url = toolkit.request.headers.get('Referer', default_page)
         else:

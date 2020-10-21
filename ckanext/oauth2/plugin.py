@@ -28,7 +28,6 @@ from functools import partial
 from ckan import plugins
 from ckan.common import g
 from ckan.plugins import toolkit
-from urlparse import urlparse
 
 import ckan.model as model
 
@@ -159,11 +158,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                 g.user = ''
                 toolkit.c.user = ''
-                return self.oauth2helper.challenge()
+        	    pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
+	            log.debug('previous page: '+pp)
+                return self.oauth2helper.challenge(pp)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
 # TODO redirect to the previous page... (environ??)
-        	    #pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
-	            #log.debug('previous page: '+pp)
 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # toolkit.get_action('login')(toolkit.c)
