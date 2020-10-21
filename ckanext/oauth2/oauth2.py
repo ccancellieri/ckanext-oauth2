@@ -107,7 +107,7 @@ class OAuth2Helper(object):
 
     def challenge(self, came_from=None):
         if not came_from:
-            came_from = self._get_previous_page(self.oauth2helper.ckan_url)
+            came_from = self._get_previous_page(self.ckan_url)
 
 # woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
 #	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
