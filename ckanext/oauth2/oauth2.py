@@ -105,6 +105,16 @@ class OAuth2Helper(object):
         elif self.scope == "":
             self.scope = None
 
+    def challenge(self, came_from):
+        if not come_from:
+            came_from = self.oauth2helper.redirect_back_path
+        
+        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+come_from
+        
+        log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
+        
+        toolkit.redirect_to(auth_url.encode('utf-8'))
+        
     def token_identify(self, token):
         
         def flatten_dict(d):

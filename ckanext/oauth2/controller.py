@@ -45,11 +45,13 @@ class OAuth2Controller(base.BaseController):
 
     def login(self):
         log.debug('login')
-        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
         
-        log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
+        # TODO redirect to the previous page... (environ??)
+        pp=_get_previous_page("https://data.review.fao.org/ckan")
+        log.debug('previous page: '+pp)
+        # toolkit.redirect_to(pp.encode('utf-8'))
         
-        toolkit.redirect_to(auth_url.encode('utf-8'))
+        self.oauth2helper.challenge(pp)
 
     def callback(self):
         log.debug("-----CALLBACK---")
@@ -110,7 +112,3 @@ class OAuth2Controller(base.BaseController):
             toolkit.response.location = self.oauth2helper.ckan_url
             helpers.flash_error(error_description)
 
-        # TODO redirect to the previous page... (environ??)
-        pp=_get_previous_page("https://data.review.fao.org/ckan")
-        log.debug('previous page: '+pp)
-        toolkit.redirect_to(pp.encode('utf-8'))
