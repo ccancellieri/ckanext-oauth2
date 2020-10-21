@@ -161,9 +161,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 toolkit.c.user = ''
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
 # TODO redirect to the previous page... (environ??)
-        	#pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
-	        #log.debug('previous page: '+pp)
-	            return self.oauth2helper.challenge(pp)
+        	    #pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
+	            #log.debug('previous page: '+pp)
+	            return self.oauth2helper.challenge()
 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # toolkit.get_action('login')(toolkit.c)

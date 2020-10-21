@@ -105,7 +105,7 @@ class OAuth2Helper(object):
         elif self.scope == "":
             self.scope = None
 
-    def challenge(self, came_from):
+    def challenge(self, came_from=None):
         if not came_from:
             came_from = self._get_previous_page(self.oauth2helper.ckan_url)
 
