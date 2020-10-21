@@ -112,7 +112,7 @@ class OAuth2Helper(object):
 # woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
 #	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
 
-        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'came_from='+came_from
+        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'&came_from='+came_from
 #+came_from
 #+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
         
