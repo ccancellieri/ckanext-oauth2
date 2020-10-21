@@ -46,7 +46,7 @@ class OAuth2Controller(base.BaseController):
         log.debug('login')
         
         # TODO redirect to the previous page... (environ??)
-        pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
+        pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
         log.debug('previous page: '+pp)
         # toolkit.redirect_to(pp.encode('utf-8'))
         
