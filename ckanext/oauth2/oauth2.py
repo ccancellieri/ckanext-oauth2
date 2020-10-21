@@ -178,7 +178,7 @@ class OAuth2Helper(object):
         plugins = environ.get('repoze.who.plugins', {})
         return plugins.get(self.rememberer_name)
 
-    def _get_previous_page(default_page):
+    def _get_previous_page(self, default_page):
         if 'came_from' not in toolkit.request.params:
             came_from_url = toolkit.request.headers.get('Referer', default_page)
         else:
