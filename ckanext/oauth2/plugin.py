@@ -158,7 +158,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                 g.user = ''
                 toolkit.c.user = ''
-                pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
+                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
                 log.debug('previous page: '+pp)
                 return self.oauth2helper.challenge(pp)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
