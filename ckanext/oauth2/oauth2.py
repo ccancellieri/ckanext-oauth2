@@ -107,9 +107,9 @@ class OAuth2Helper(object):
 
     def challenge(self, came_from):
         if not came_from:
-            came_from = self.oauth2helper.redirect_back_path
+            came_from = self.redirect_back_path
         
-        auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+came_from
+        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         
