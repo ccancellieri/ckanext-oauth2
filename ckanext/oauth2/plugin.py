@@ -64,25 +64,6 @@ def request_reset(context, data_dict):
     return _no_permissions(context, msg)
 
 
-def _get_previous_page(default_page):
-    if 'came_from' not in toolkit.request.params:
-        came_from_url = toolkit.request.headers.get('Referer', default_page)
-    else:
-        came_from_url = toolkit.request.params.get('came_from', default_page)
-
-    came_from_url_parsed = urlparse(came_from_url)
-
-    # Avoid redirecting users to external hosts
-    if came_from_url_parsed.netloc != '' and came_from_url_parsed.netloc != toolkit.request.host:
-        came_from_url = default_page
-
-    # When a user is being logged and REFERER == HOME or LOGOUT_PAGE
-    # he/she must be redirected to the dashboard
-    pages = ['/', '/user/logged_out_redirect']
-    if came_from_url_parsed.path in pages:
-        came_from_url = default_page
-
-    return came_from_url
 
 
 class OAuth2Plugin(plugins.SingletonPlugin):
@@ -178,17 +159,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                 g.user = ''
                 toolkit.c.user = ''
-                    # auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
-   #                 auth_url='/ckan/user/login'
-                    #return toolkit.redirect_to(auth_url.encode('utf-8'))
-                
-	        # TODO redirect to the previous page... (environ??)
-        	pp=_get_previous_page("https://data.review.fao.org/ckan")
-	        log.debug('previous page: '+pp)
-        	# toolkit.redirect_to(pp.encode('utf-8'))
-        
-	        return self.oauth2helper.challenge(pp)
+# TODO redirect to the previous page... (environ??)
+        	#pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
+	        #log.debug('previous page: '+pp)
+	            return self.oauth2helper.challenge(pp)
 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # toolkit.get_action('login')(toolkit.c)
@@ -214,27 +189,6 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             g.user = None
             #toolkit.c.user = None #TODO needed?
             log.warn('The user is not currently logged...')
-
-    def _get_previous_page(default_page):
-        if 'came_from' not in toolkit.request.params:
-            came_from_url = toolkit.request.headers.get('Referer', default_page)
-        else:
-            came_from_url = toolkit.request.params.get('came_from', default_page)
-
-        came_from_url_parsed = urlparse(came_from_url)
-
-        # Avoid redirecting users to external hosts
-        if came_from_url_parsed.netloc != '' and came_from_url_parsed.netloc != toolkit.request.host:
-            came_from_url = default_page
-
-        # When a user is being logged and REFERER == HOME or LOGOUT_PAGE
-        # he/she must be redirected to the dashboard
-        pages = ['/', '/user/logged_out_redirect']
-        if came_from_url_parsed.path in pages:
-            came_from_url = default_page
-
-        return came_from_url
-
 
     def get_auth_functions(self):
         # we need to prevent some actions being authorized.

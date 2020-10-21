@@ -31,7 +31,6 @@ import oauth2
 import requests
 import os
 from urllib2 import Request, urlopen
-from ckanext.oauth2.plugin import _get_previous_page
 
 from six.moves.urllib.parse import urljoin
 
@@ -47,7 +46,7 @@ class OAuth2Controller(base.BaseController):
         log.debug('login')
         
         # TODO redirect to the previous page... (environ??)
-        pp=_get_previous_page("https://data.review.fao.org/ckan")
+        pp=self.oauth2helper_get_previous_page(self.oauth2helper.ckan_url)
         log.debug('previous page: '+pp)
         # toolkit.redirect_to(pp.encode('utf-8'))
         
