@@ -108,8 +108,13 @@ class OAuth2Helper(object):
     def challenge(self, came_from):
         if not came_from:
             came_from = self.redirect_back_path
-        
-        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
+
+# woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
+#	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
+
+        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'came_from='+came_from
+#+came_from
+#+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         

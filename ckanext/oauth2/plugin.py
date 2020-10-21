@@ -172,31 +172,28 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
-            try:
-                if user_name and self.oauth2helper.check_user_token_exp(user_name):
-                    log.warning("Session expired for user "+user_name+" redirecting....")
+ #           try:
+            if user_name and self.oauth2helper.check_user_token_exp(user_name):
+                log.warning("Session expired for user "+user_name+" redirecting....")
                     #logout
-                    g.user = ''
-                    toolkit.c.user = ''
+                g.user = ''
+                toolkit.c.user = ''
                     # auth_url=self.oauth2helper.authorization_endpoint+'?redirect_uri='+self.oauth2helper.local_ip+toolkit.config.get('ckan.root_path')+self.oauth2helper.redirect_back_path
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
-#                    r = requests.get(auth_url)
-                    
-#                    for h in r.headers:
-#                        log.debug("--------HEADERs:"+h+" - "+r.headers[h])
-                    # log.debug("--------code:"+r.code)
-                    # response_dict = json.loads(r.content)
-                    # log.debug("--------body:"+response_dict)
-                    # toolkit.redirect_to(auth_url.encode('utf-8'))
-                    return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
-                    # self.oauth2helper.login()
-                    # toolkit.get_action('login')(toolkit.c)
-                    # toolkit.redirect_to('/user/login'.encode('utf-8'))
-                    
-#                    return #TODO temp fix redirect does not works!
+   #                 auth_url='/ckan/user/login'
+                    #return toolkit.redirect_to(auth_url.encode('utf-8'))
                 
-            except Exception as e:
-                log.exception("-----------EXCEPTION"+str(e))
+	        # TODO redirect to the previous page... (environ??)
+        	pp=_get_previous_page("https://data.review.fao.org/ckan")
+	        log.debug('previous page: '+pp)
+        	# toolkit.redirect_to(pp.encode('utf-8'))
+        
+	        return self.oauth2helper.challenge(pp)
+	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    # toolkit.get_action('login')(toolkit.c)
+#            except Exception as e:
+#                log.exception("-----------EXCEPTION-"+str(e))
 
 #        if model.Session.get(
 
