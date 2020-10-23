@@ -153,7 +153,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             #    log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
 #            for h in toolkit.request.headers:
 #                log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
-            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
+#ERRORS HIDDEN            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
 
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
@@ -163,11 +163,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                 g.user = ''
                 toolkit.c.user = ''
-    #            pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
                 #pp = environ['HTTP_REFERER']
-                pp=toolkit.url_for(toolkit.request.path, _external=True)
-                log.debug('previous page: '+pp)
-                return self.oauth2helper.challenge(pp)
+#ERRORS?                pp=toolkit.url_for(toolkit.request.path, _external=True)
+#                log.debug('previous page: '+pp)
+                return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
 # TODO redirect to the previous page... (environ??)
 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
