@@ -141,7 +141,13 @@ class OAuth2Helper(object):
 #jwt.ExpiredSignatureError:
             log.exception('Unable to validate JWT token: '+str(e))
             raise
+            
         user = self.user_json(flatten_dict(user_data))
+        
+        # Save the user in the database
+        model.Session.add(user)
+        model.Session.commit()
+        model.Session.remove()
 
         return user.name
 
@@ -171,11 +177,6 @@ class OAuth2Helper(object):
         # Update sysadmin status
         if self.profile_api_groupmembership_field != "" and self.profile_api_groupmembership_field in user_data:
             user.sysadmin = self.sysadmin_group_name in user_data[self.profile_api_groupmembership_field]
-        
-        # Save the user in the database
-        model.Session.add(user)
-        model.Session.commit()
-        model.Session.remove()
 
         return user
 
