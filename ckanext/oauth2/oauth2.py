@@ -235,7 +235,8 @@ class OAuth2Helper(object):
     def check_token_exp(self, decoded_token):
         log.debug("-----Token expiration: "+str(datetime.utcfromtimestamp(decoded_token['exp'])))
         log.debug("-----Current time: "+str(datetime.utcnow()))
-        return datetime.utcfromtimestamp(decoded_token['exp']) > datetime.utcnow()
+        # return datetime.utcfromtimestamp(decoded_token['exp']) > datetime.utcnow()
+        return datetime.fromtimestamp(decoded_token['exp']) > datetime.utcnow()
 
 
     def check_user_token_exp(self, user_name):
