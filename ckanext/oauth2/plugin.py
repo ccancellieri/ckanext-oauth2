@@ -149,8 +149,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If the authentication via API fails, we can still log in the user using session.
         if user_name is None and 'repoze.who.identity' in environ:
-            for e in environ:
-                log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
+            #for e in environ:
+            #    log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
+#            for h in toolkit.request.headers:
+#                log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
+            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
 
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
@@ -161,7 +164,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 g.user = ''
                 toolkit.c.user = ''
     #            pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
-                pp = environ['HTTP_REFERER']
+                #pp = environ['HTTP_REFERER']
+                pp=toolkit.url_for(toolkit.request.path, _external=True)
                 log.debug('previous page: '+pp)
                 return self.oauth2helper.challenge(pp)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
