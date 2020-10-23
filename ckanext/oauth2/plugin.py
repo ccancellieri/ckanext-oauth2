@@ -134,10 +134,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
             try:
+
                 token = {'access_token': apikey}
                 user_name = self.oauth2helper.token_identify(token)
-                for e in environ:
-                   log.debug("--------ENVIRON:"+e)
                 
 #                self.oauth2helper.remember(user_name)
                 
@@ -150,6 +149,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If the authentication via API fails, we can still log in the user using session.
         if user_name is None and 'repoze.who.identity' in environ:
+            for e in environ:
+                log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
+
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
  #           try:
@@ -158,7 +160,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                     #logout
                 g.user = ''
                 toolkit.c.user = ''
-                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+    #            pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+                pp = environ['HTTP_REFERER']
                 log.debug('previous page: '+pp)
                 return self.oauth2helper.challenge(pp)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
