@@ -263,9 +263,9 @@ class OAuth2Helper(object):
         
     def refresh_token(self, user_name):
         try:
-            if user_name and self.oauth2helper.check_user_token_exp(user_name):
-                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
-                return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
+            if user_name and self.check_user_token_exp(user_name):
+                pp=self._get_previous_page(self.ckan_url)
+                return self.challenge(self.ckan_url+toolkit.request.path)
         except Exception as e:
             log.exception("-----------EXCEPTION-"+str(e))
     #logout
