@@ -180,7 +180,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
-            if self.oauth2helper.check_user_token_exp(user_name):
+            if not self.oauth2helper.check_user_token_exp(user_name):
                 return self.oauth2helper.renew_token(user_name)
             else:
                 g.user = user_name
