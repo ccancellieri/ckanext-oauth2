@@ -264,12 +264,13 @@ class OAuth2Helper(object):
 
         
     def renew_token(self, user_name):
-        try:
-            if user_name and self.check_user_token_exp(user_name):
-                pp=self._get_previous_page(self.ckan_url)
-                return self.challenge(self.ckan_url+toolkit.request.path)
-        except Exception as e:
-            log.exception("-----------EXCEPTION-"+str(e))
+        # DO NOT TRAP -> DOES NOT REDIRECT
+        # try:
+        if user_name and self.check_user_token_exp(user_name):
+            pp=self._get_previous_page(self.ckan_url)
+            return self.challenge(self.ckan_url+toolkit.request.path)
+        # except Exception as e:
+        #     log.exception("-----------EXCEPTION-"+str(e))
     #logout
                     # g.user = ''
                     # toolkit.c.user = ''
