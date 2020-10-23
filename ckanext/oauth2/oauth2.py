@@ -182,8 +182,10 @@ class OAuth2Helper(object):
         from urlparse import urlparse
         if 'came_from' not in toolkit.request.params:
             came_from_url = toolkit.request.headers.get('Referer', default_page)
+            log.debug("__get_previous_page: using Referer header: "+ came_from_url)
         else:
             came_from_url = toolkit.request.params.get('came_from', default_page)
+            log.debug("__get_previous_page: using came_from param: "+ came_from_url)
         came_from_url_parsed = urlparse(came_from_url)
 
         # Avoid redirecting users to external hosts
@@ -195,6 +197,8 @@ class OAuth2Helper(object):
         pages = ['/', '/user/logged_out_redirect']
         if came_from_url_parsed.path in pages:
             came_from_url = default_page
+            
+        log.debug("__get_previous_page: FINALLY: "+ came_from_url)
         return came_from_url
 
     def remember(self, user_name):
@@ -222,9 +226,9 @@ class OAuth2Helper(object):
             }
     
     def check_token_exp(self, decoded_token):
-        log.debug("-----Token expiration: "+str(datetime.fromtimestamp(decoded_token['exp'])))
+        log.debug("-----Token expiration: "+str(datetime.utcfromtimestamp(decoded_token['exp'])))
         log.debug("-----Current time: "+str(datetime.utcnow()))
-        return datetime.fromtimestamp(decoded_token['exp']) < datetime.utcnow()
+        return datetime.utcfromtimestamp(decoded_token['exp']) < datetime.utcnow()
 
 
     def check_user_token_exp(self, user_name):
