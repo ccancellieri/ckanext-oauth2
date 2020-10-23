@@ -171,6 +171,11 @@ class OAuth2Helper(object):
         # Update sysadmin status
         if self.profile_api_groupmembership_field != "" and self.profile_api_groupmembership_field in user_data:
             user.sysadmin = self.sysadmin_group_name in user_data[self.profile_api_groupmembership_field]
+        
+        # Save the user in the database
+        model.Session.add(user)
+        model.Session.commit()
+        model.Session.remove()
 
         return user
 
@@ -197,7 +202,7 @@ class OAuth2Helper(object):
         pages = ['/', '/user/logged_out_redirect']
         if came_from_url_parsed.path in pages:
             came_from_url = default_page
-            
+
         log.debug("__get_previous_page: FINALLY: "+ came_from_url)
         return came_from_url
 
