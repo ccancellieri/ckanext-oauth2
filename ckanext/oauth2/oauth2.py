@@ -238,9 +238,11 @@ class OAuth2Helper(object):
 
 
     def check_user_token_exp(self, user_name):
+        log.debug("-------------GETSTOREDTOKEN")
         user_token = self.get_stored_token(user_name)
         if not user_token:
-            raise Exception("Missing stored token")
+            log.warn("Missing stored token")
+            return False
         access_token = user_token['access_token']
         decoded_token = jwt.decode(access_token, verify=False)
         return self.check_token_exp(decoded_token)
@@ -261,7 +263,7 @@ class OAuth2Helper(object):
         model.Session.commit()
 
         
-    def refresh_token(self, user_name):
+    def renew_token(self, user_name):
         try:
             if user_name and self.check_user_token_exp(user_name):
                 pp=self._get_previous_page(self.ckan_url)

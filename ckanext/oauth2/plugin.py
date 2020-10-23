@@ -180,17 +180,13 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
-            g.user = user_name
-            toolkit.c.user = user_name
-            # Save the user in the database
-            # model.Session.add(user_name)
-            # model.Session.commit()
-            # model.Session.remove()
-            log.warn("-------------GETSTOREDTOKEN")
-            toolkit.c.usertoken = self.oauth2helper.get_stored_token(user_name)
-            log.warn("-------------REFRESHTOKEN")
-            toolkit.c.usertoken_refresh = partial(_refresh_and_save_token, user_name)
-            log.warn("-------------DONE")
+            if self.oauth2helper.check_user_token_exp(user_name):
+                return self.oauth2helper.renew_token(user_name)
+            else:
+                g.user = user_name
+                toolkit.c.user = user_name
+                # toolkit.c.usertoken_refresh = partial(_refresh_and_save_token, user_name)
+                log.warn("-------------Username and token valid: "+user_name)
         else:
             g.user = None
             #toolkit.c.user = None #TODO needed?
