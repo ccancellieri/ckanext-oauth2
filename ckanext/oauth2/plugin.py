@@ -157,24 +157,24 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
- #           try:
-            if user_name and self.oauth2helper.check_user_token_exp(user_name):
-                log.warning("Session expired for user "+user_name+" redirecting....")
+            try:
+                if user_name and self.oauth2helper.check_user_token_exp(user_name):
+                    log.warning("Session expired for user "+user_name+" redirecting....")
                     #logout
-                g.user = ''
-                toolkit.c.user = ''
-                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+                    g.user = ''
+                    toolkit.c.user = ''
+                    pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
                 #pp = environ['HTTP_REFERER']
 #ERRORS?                pp=toolkit.url_for(toolkit.request.path, _external=True)
 #                log.debug('previous page: '+pp)
-                return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
+                    return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
 #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
 # TODO redirect to the previous page... (environ??)
 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
                     # toolkit.get_action('login')(toolkit.c)
-#            except Exception as e:
-#                log.exception("-----------EXCEPTION-"+str(e))
+            except Exception as e:
+                log.exception("-----------EXCEPTION-"+str(e))
 
 #        if model.Session.get(
 
