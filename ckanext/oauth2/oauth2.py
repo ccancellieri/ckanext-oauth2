@@ -261,7 +261,26 @@ class OAuth2Helper(object):
         model.Session.commit()
 
         
-    # def refresh_token(self, user_name):
+    def refresh_token(self, user_name):
+        try:
+            if user_name and self.oauth2helper.check_user_token_exp(user_name):
+                pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
+                return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
+        except Exception as e:
+            log.exception("-----------EXCEPTION-"+str(e))
+    #logout
+                    # g.user = ''
+                    # toolkit.c.user = ''
+                    
+                #pp = environ['HTTP_REFERER']
+#ERRORS?                pp=toolkit.url_for(toolkit.request.path, _external=True)
+#                log.debug('previous page: '+pp)
+                    
+#                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
+# TODO redirect to the previous page... (environ??)
+	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
+                    # toolkit.get_action('login')(toolkit.c)
     #     token = self.get_stored_token(user_name)
     #     if token:
     #         client = OAuth2Session(self.client_id, token=token, scope=self.scope)
