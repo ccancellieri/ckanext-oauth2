@@ -144,6 +144,9 @@ class OAuth2Helper(object):
             
         user = self.user_json(flatten_dict(user_data))
         
+        self.update_token(user.name, token)
+        log.info('Token for user %s has been updated properly' % user.name)
+        
         # Save the user in the database
         model.Session.add(user)
         model.Session.commit()
@@ -236,7 +239,7 @@ class OAuth2Helper(object):
         log.debug("-----Token expiration: "+str(datetime.utcfromtimestamp(decoded_token['exp'])))
         log.debug("-----Current time: "+str(datetime.utcnow()))
         # return datetime.utcfromtimestamp(decoded_token['exp']) > datetime.utcnow()
-        return datetime.fromtimestamp(decoded_token['exp']) > datetime.utcnow()
+        return datetime.fromtimestamp(decoded_token['exp']) < datetime.utcnow()
 
 
     def check_user_token_exp(self, user_name):
