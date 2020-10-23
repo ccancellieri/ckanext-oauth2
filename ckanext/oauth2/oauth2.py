@@ -231,10 +231,11 @@ class OAuth2Helper(object):
                 'access_token': user_token.access_token
             }
     
+    # returns true if expired
     def check_token_exp(self, decoded_token):
         log.debug("-----Token expiration: "+str(datetime.utcfromtimestamp(decoded_token['exp'])))
         log.debug("-----Current time: "+str(datetime.utcnow()))
-        return datetime.utcfromtimestamp(decoded_token['exp']) < datetime.utcnow()
+        return datetime.utcfromtimestamp(decoded_token['exp']) > datetime.utcnow()
 
 
     def check_user_token_exp(self, user_name):
@@ -266,9 +267,9 @@ class OAuth2Helper(object):
     def renew_token(self, user_name):
         # DO NOT TRAP -> DOES NOT REDIRECT
         # try:
-        if user_name and self.check_user_token_exp(user_name):
-            pp=self._get_previous_page(self.ckan_url)
-            return self.challenge(self.ckan_url+toolkit.request.path)
+        log.warning("Redirecting...."+self.ckan_url+toolkit.request.path)
+        # pp=self._get_previous_page(self.ckan_url)
+        return self.challenge(self.ckan_url+toolkit.request.path)
         # except Exception as e:
         #     log.exception("-----------EXCEPTION-"+str(e))
     #logout

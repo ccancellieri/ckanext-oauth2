@@ -149,14 +149,14 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If the authentication via API fails, we can still log in the user using session.
         if user_name is None and 'repoze.who.identity' in environ:
+            user_name = environ['repoze.who.identity']['repoze.who.userid']
+            log.info('User %s logged using session' % user_name)
             #for e in environ:
             #    log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
 #            for h in toolkit.request.headers:
 #                log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
 #ERRORS HIDDEN            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
 
-            user_name = environ['repoze.who.identity']['repoze.who.userid']
-            log.info('User %s logged using session' % user_name)
 #             try:
 #                 if user_name and self.oauth2helper.check_user_token_exp(user_name):
 #                     log.warning("Session expired for user "+user_name+" redirecting....")
@@ -180,7 +180,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
-            if not self.oauth2helper.check_user_token_exp(user_name):
+            if self.oauth2helper.check_user_token_exp(user_name):
                 return self.oauth2helper.renew_token(user_name)
             else:
                 g.user = user_name
@@ -189,7 +189,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 log.warn("-------------Username and token valid: "+user_name)
         else:
             g.user = None
-            #toolkit.c.user = None #TODO needed?
+            #TODO needed?
+            toolkit.c.user = None
             log.warn('The user is not currently logged...')
 
     def get_auth_functions(self):
