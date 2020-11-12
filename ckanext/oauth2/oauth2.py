@@ -120,7 +120,7 @@ class OAuth2Helper(object):
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         
-        toolkit.redirect_to(auth_url.encode('utf-8'))
+        return toolkit.redirect_to(auth_url.encode('utf-8'))
 
     def token_identify(self, token):
         
@@ -233,11 +233,7 @@ class OAuth2Helper(object):
         identity = {'repoze.who.userid': user_name}
         log.debug("-------------UID:"+user_name)
         headers = rememberer.remember(environ, identity)
-# TOODO CHECME
-#        response = toolkit.response.copy()
-#        for header, value in headers:
-#             log.debug("-------------H:"+header+"---V:"+value)
-#             response.headers.add(header, value)
+        
         return self.stream_url(headers)
 
     def stream_url(self, headers):
@@ -245,10 +241,6 @@ class OAuth2Helper(object):
 #        url = flask.request.args.get('url')
         url = toolkit.request.headers.get('Referer')
 #r= requests.get(url)
-        # If it's just an HTML page served over HTTPS, no problem
-     #   if url.startswith('https://') and ( 'text/html' in r.headers['Content-Type'] ):
-     #       return flask.redirect(flask.url_for('redirect_to_url', url=url))
-
         response = toolkit.request.response
 #response = flask.make_response()
 #        response.data = r.content

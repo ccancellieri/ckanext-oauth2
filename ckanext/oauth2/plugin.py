@@ -111,11 +111,12 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         log.debug('identify')
         environ = toolkit.request.environ
         
-        user_name = None
+        user_name = self.bearer()
         # log in the user using session.
-        if 'repoze.who.identity' in environ:
+        if not user_name and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
+        
 #        if toolkit.c.usertoken:
 #            user_name = toolkit.c.usertoken
 #            log.info('User %s logged using token' % user_name)
@@ -127,7 +128,7 @@ class OAuth2Plugin(plugins.SingletonPlugin):
             if self.oauth2helper.check_user_token_exp(user_name):
                 g.user = None
                 #TODO needed?
-                toolkit.c.user = None
+#                toolkit.c.user = None
 #                environ['repoze.who.identity']['repoze.who.userid'] = None
                 return self.oauth2helper.renew_token(user_name)
             else:
@@ -136,14 +137,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 #                toolkit.c.usertoken = user_name
                 log.warn("-------------Username and token valid: "+user_name)
         else:
-            # last shot, let's try with Authorization bearer
-            user_name, response = self.bearer()
-
-            g.user = user_name
-            toolkit.c.user = user_name
-            toolkit.c.usertoken = user_name
-            if response:    
-                return response
+            g.user = None
+#            toolkit.c.user = user_name
+#            toolkit.c.usertoken = user_name
 
     def bearer(self):
         log.debug("-------------BEARER")
@@ -165,16 +161,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
-            try:
-                token = {'access_token': apikey}
-                user_name = self.oauth2helper.token_identify(token)
-                self.oauth2helper.update_token(user_name, token)
-                return user_name, self.oauth2helper.remember(user_name)
-            except Exception:
-                log.exception("-----------EXCEPTION")
-                pass
-        return None, None
-#        return user_name
+            token = {'access_token': apikey}
+            user_name = self.oauth2helper.token_identify(token)
+            self.oauth2helper.update_token(user_name, token)
+            self.oauth2helper.remember(user_name)
+        return user_name
 
     def get_auth_functions(self):
         # we need to prevent some actions being authorized.
