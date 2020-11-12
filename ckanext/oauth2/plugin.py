@@ -85,9 +85,9 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
         # We need to handle petitions received to the Callback URL
         # since some error can arise and we need to process them
-        m.connect(self.oauth2helper.redirect_back_path,#'/oauth2/callback',
-                  controller='ckanext.oauth2.controller:OAuth2Controller',
-                  action='callback')
+        # m.connect(self.oauth2helper.redirect_back_path,#'/oauth2/callback',
+        #           controller='ckanext.oauth2.controller:OAuth2Controller',
+        #           action='callback')
 
         #########################################################
         ### TODO disable the following paths!!!
@@ -110,77 +110,22 @@ class OAuth2Plugin(plugins.SingletonPlugin):
     def identify(self):
         log.debug('identify')
         environ = toolkit.request.environ
-        def _refresh_and_save_token(user_name):
-            new_token = self.oauth2helper.refresh_token(user_name)
-            if new_token:
-                toolkit.c.usertoken = new_token
-        
-        # authorization_header = "x-goog-iap-jwt-assertion".lower()
-        authorization_header = "authorization"
-        apikey = toolkit.request.headers.get(authorization_header, '')
-        
-        if authorization_header == "authorization":
-            if apikey.startswith('Bearer '):
-                apikey = apikey[7:].strip()
         
         user_name = None
-
-        ### TODO TESTME
-        # if apikey is '':
-        #    apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
-        #    log.debug("--------NEW-APIKEY:"+apikey)
-
-#        for e in environ:
-#            log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
-#        for h in toolkit.request.headers:
-#            log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
-#ERRORS HIDDEN            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
-
-        # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
-        if apikey:
-            try:
-
-                token = {'access_token': apikey}
-                user_name = self.oauth2helper.token_identify(token)
-                
-#                self.oauth2helper.remember(user_name)
-                
-
-                #self.oauth2helper.redirect_from_callback()
-                #environ['repoze.who.identity']['repoze.who.userid']=user_name
-            except Exception:
-                log.exception("-----------EXCEPTION")
-                pass
-
-        # If the authentication via API fails, we can still log in the user using session.
-        if user_name is None and 'repoze.who.identity' in environ:
+        # log in the user using session.
+        if 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
 
-#             try:
-#                 if user_name and self.oauth2helper.check_user_token_exp(user_name):
-#                     log.warning("Session expired for user "+user_name+" redirecting....")
-#                     #logout
-#                     g.user = ''
-#                     toolkit.c.user = ''
-#                     pp=self.oauth2helper._get_previous_page(self.oauth2helper.ckan_url)
-#                 #pp = environ['HTTP_REFERER']
-# #ERRORS?                pp=toolkit.url_for(toolkit.request.path, _external=True)
-# #                log.debug('previous page: '+pp)
-#                     return self.oauth2helper.challenge(self.oauth2helper.ckan_url+toolkit.request.path)
-# #                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
-# # TODO redirect to the previous page... (environ??)
-# 	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
-#                     #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
-#                     # toolkit.get_action('login')(toolkit.c)
-#             except Exception as e:
-#                 log.exception("-----------EXCEPTION-"+str(e))
-
-#        if model.Session.get(
+        # TODO shared session or use DB if using CLUSTER
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
             if self.oauth2helper.check_user_token_exp(user_name):
+                g.user = None
+                #TODO needed?
+                toolkit.c.user = None
+                environ['repoze.who.identity']['repoze.who.userid'] = None
                 return self.oauth2helper.renew_token(user_name)
             else:
                 g.user = user_name
@@ -188,10 +133,39 @@ class OAuth2Plugin(plugins.SingletonPlugin):
                 # toolkit.c.usertoken_refresh = partial(_refresh_and_save_token, user_name)
                 log.warn("-------------Username and token valid: "+user_name)
         else:
-            g.user = None
+            # last shot, let's try with Authorization bearer
+            user_name=self.bearer()
+            g.user = user_name
             #TODO needed?
-            toolkit.c.user = None
-            log.warn('The user is not currently logged...')
+            toolkit.c.user = user_name
+            
+
+    def bearer(self):
+        # authorization_header = "x-goog-iap-jwt-assertion".lower()
+        authorization_header = "authorization"
+        apikey = toolkit.request.headers.get(authorization_header, '')
+        
+        if authorization_header == "authorization":
+            if apikey.startswith('Bearer '):
+                apikey = apikey[7:].strip()
+
+        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
+        for h in toolkit.response.headers:
+            log.debug("----HEADERS:---"+h)
+
+        user_name = None
+
+        # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
+        if apikey:
+            try:
+                token = {'access_token': apikey}
+                user_name = self.oauth2helper.token_identify(token)
+                self.oauth2helper.remember(user_name)
+                self.oauth2helper.update_token(user_name, token)
+            except Exception:
+                log.exception("-----------EXCEPTION")
+                pass
+        return user_name
 
     def get_auth_functions(self):
         # we need to prevent some actions being authorized.
