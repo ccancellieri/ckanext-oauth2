@@ -116,56 +116,65 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
-
+#        if toolkit.c.usertoken:
+#            user_name = toolkit.c.usertoken
+#            log.info('User %s logged using token' % user_name)
         # TODO shared session or use DB if using CLUSTER
 
         # If we have been able to log in the user (via API or Session)
         if user_name:
+            log.debug("-------------Username from repoze: "+ user_name)
             if self.oauth2helper.check_user_token_exp(user_name):
                 g.user = None
                 #TODO needed?
                 toolkit.c.user = None
-                environ['repoze.who.identity']['repoze.who.userid'] = None
+#                environ['repoze.who.identity']['repoze.who.userid'] = None
                 return self.oauth2helper.renew_token(user_name)
             else:
                 g.user = user_name
-                toolkit.c.user = user_name
-                # toolkit.c.usertoken_refresh = partial(_refresh_and_save_token, user_name)
+#                toolkit.c.user = user_name
+#                toolkit.c.usertoken = user_name
                 log.warn("-------------Username and token valid: "+user_name)
         else:
             # last shot, let's try with Authorization bearer
-            user_name=self.bearer()
+            user_name, response = self.bearer()
+
             g.user = user_name
-            #TODO needed?
             toolkit.c.user = user_name
-            
+            toolkit.c.usertoken = user_name
+            if response:    
+                return response
 
     def bearer(self):
+        log.debug("-------------BEARER")
         # authorization_header = "x-goog-iap-jwt-assertion".lower()
         authorization_header = "authorization"
         apikey = toolkit.request.headers.get(authorization_header, '')
-        
         if authorization_header == "authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
 
-        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
-        for h in toolkit.response.headers:
-            log.debug("----HEADERS:---"+h)
+#        for e in toolkit.request.environ:
+#            log.debug("environ: "+e+" v: "+toolkit.request.environ[e])
+#        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
+#        for h in toolkit.response.headers:
+#            log.debug("----HEADERS:---"+h)
 
         user_name = None
+        log.debug("-------------APIKEY: "+apikey)
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
             try:
                 token = {'access_token': apikey}
                 user_name = self.oauth2helper.token_identify(token)
-                self.oauth2helper.remember(user_name)
                 self.oauth2helper.update_token(user_name, token)
+                return user_name, self.oauth2helper.remember(user_name)
             except Exception:
                 log.exception("-----------EXCEPTION")
                 pass
-        return user_name
+        return None, None
+#        return user_name
 
     def get_auth_functions(self):
         # we need to prevent some actions being authorized.

@@ -110,10 +110,11 @@ class OAuth2Helper(object):
             came_from = self._get_previous_page(self.ckan_url)
         log.debug("CAME_FROM: "+came_from)
 # woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
-#	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
+	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
 
-        #auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'&came_from='+came_from
+#        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'&came_from='+came_from
         auth_url=self.authorization_endpoint+'?redirect_uri='+came_from
+        #auth_url=self.authorization_endpoint
 #+came_from
 #+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
         
@@ -232,10 +233,32 @@ class OAuth2Helper(object):
         identity = {'repoze.who.userid': user_name}
         log.debug("-------------UID:"+user_name)
         headers = rememberer.remember(environ, identity)
-#        headers = rememberer.remember(identity)
-        for header, value in headers:
-            log.debug("-------------H:"+header+"---V:"+value)
-            toolkit.response.headers.add(header, value)
+# TOODO CHECME
+#        response = toolkit.response.copy()
+#        for header, value in headers:
+#             log.debug("-------------H:"+header+"---V:"+value)
+#             response.headers.add(header, value)
+        return self.stream_url(headers)
+
+    def stream_url(self, headers):
+        #import flask
+#        url = flask.request.args.get('url')
+        url = toolkit.request.headers.get('Referer')
+#r= requests.get(url)
+        # If it's just an HTML page served over HTTPS, no problem
+     #   if url.startswith('https://') and ( 'text/html' in r.headers['Content-Type'] ):
+     #       return flask.redirect(flask.url_for('redirect_to_url', url=url))
+
+        response = toolkit.request.response
+#response = flask.make_response()
+#        response.data = r.content
+        response.headers = headers
+#        response.headers['Content-Type'] = r.headers['Content-Type']
+        # Preserve filename if possible
+#        if 'Content-Disposition' in r.headers:
+#            response.headers['Content-Disposition'] = r.headers['Content-Disposition'].replace("attachment;", "inline;")
+        
+        return response 
 
     def get_stored_token(self, user_name):
         user_token = db.UserToken.by_user_name(user_name=user_name)
