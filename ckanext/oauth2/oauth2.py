@@ -35,7 +35,7 @@ from oauthlib.oauth2 import InsecureTransportError
 import requests
 from requests_oauthlib import OAuth2Session
 import six
-
+from ckan.plugins import toolkit
 import jwt
 
 import constants
@@ -108,7 +108,7 @@ class OAuth2Helper(object):
     def challenge(self, came_from=None):
         if not came_from:
             came_from = self._get_previous_page(self.ckan_url)
-
+        log.debug("CAME_FROM: "+came_from)
 # woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
 #	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
 
@@ -189,6 +189,15 @@ class OAuth2Helper(object):
 
     def _get_previous_page(self, default_page):
         from urlparse import urlparse
+        log.debug("GET_PREVIOUS_PAGE: "+str(toolkit.request))
+
+        for p in toolkit.request.params:
+            log.debug("req_param: "+p+" v: "+toolkit.request.params[p])
+        log.debug("req_url: "+toolkit.request.url)
+        for h in toolkit.request.headers:
+            log.debug("header_param: "+h+" v: "+toolkit.request.headers[h])
+
+#        log.debug("GET_PREVIOUS_PAGE: "+str(toolkit.request))
         if 'came_from' not in toolkit.request.params:
             came_from_url = toolkit.request.headers.get('Referer', default_page)
             log.debug("__get_previous_page: using Referer header: "+ came_from_url)
@@ -239,6 +248,7 @@ class OAuth2Helper(object):
         log.debug("-----Token expiration: "+str(datetime.utcfromtimestamp(decoded_token['exp'])))
         log.debug("-----Current time: "+str(datetime.utcnow()))
         # return datetime.utcfromtimestamp(decoded_token['exp']) > datetime.utcnow()
+#        return True
         return datetime.fromtimestamp(decoded_token['exp']) < datetime.utcnow()
 
 
@@ -271,9 +281,14 @@ class OAuth2Helper(object):
     def renew_token(self, user_name):
         # DO NOT TRAP -> DOES NOT REDIRECT
         # try:
-        log.warning("Redirecting...."+self.ckan_url+toolkit.request.path)
-        # pp=self._get_previous_page(self.ckan_url)
-        return self.challenge(self.ckan_url+toolkit.request.path)
+        log.warning("-------> METHOD: ->"+toolkit.request.environ['REQUEST_METHOD'])
+        if toolkit.request.environ['REQUEST_METHOD'] == 'POST':
+            log.warning("It's a POST request NOT redirecting...."+self.ckan_url+toolkit.request.path)
+        else:
+            log.warning("Redirecting...."+self.ckan_url+toolkit.request.path)
+       # pp=self._get_previous_page(self.ckan_url)
+            return self.challenge(self.ckan_url+toolkit.request.path)
+#        return self.challenge(self.ckan_url+toolkit.request.path)
         # except Exception as e:
         #     log.exception("-----------EXCEPTION-"+str(e))
     #logout

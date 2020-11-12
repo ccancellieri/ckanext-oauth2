@@ -130,6 +130,11 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         #    apikey = environ.get(u'HTTP_X_GOOG_IAP_JWT_ASSERTION', u'')
         #    log.debug("--------NEW-APIKEY:"+apikey)
 
+#        for e in environ:
+#            log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
+#        for h in toolkit.request.headers:
+#            log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
+#ERRORS HIDDEN            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
 
         # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
         if apikey:
@@ -151,11 +156,6 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         if user_name is None and 'repoze.who.identity' in environ:
             user_name = environ['repoze.who.identity']['repoze.who.userid']
             log.info('User %s logged using session' % user_name)
-            #for e in environ:
-            #    log.debug("--------ENVIRON:"+e+" V:"+str(environ[e]))
-#            for h in toolkit.request.headers:
-#                log.debug("H: "+h+" - "+str(toolkit.request.headers[h]))
-#ERRORS HIDDEN            log.debug("REQUEST:--------->"+str(toolkit.url_for(toolkit.request.path, _external=True)))
 
 #             try:
 #                 if user_name and self.oauth2helper.check_user_token_exp(user_name):
