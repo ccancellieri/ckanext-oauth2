@@ -67,8 +67,7 @@ class FirebaseHelper(object):
         missing = [key for key in REQUIRED_CONF if getattr(self, key, "") == ""]
         if missing:
             raise ValueError("Missing required Firebase Auth conf: %s" % ", ".join(missing))
-        elif self.scope == "":
-            self.scope = None
+
 
     def challenge(self, came_from=None):
         if not came_from:
