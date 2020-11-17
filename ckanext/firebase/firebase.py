@@ -19,9 +19,8 @@ from ckan.plugins import toolkit
 import requests
 import six
 from ckan.plugins import toolkit
-import jwt
 
-import constants
+import jwt
 from datetime import datetime
 
 log = logging.getLogger(__name__)
