@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This file is part of FAO Firebase Authentication CKAN Extension.
+# This file is part of FAO GCIAP Authentication CKAN Extension.
 # Copyright (c) 2020 UN FAO
 # Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
 # License: GPL3
@@ -10,7 +10,7 @@ import re
 
 from setuptools import setup, find_packages
 
-from ckanext.firebase import __version__, __description__
+from ckanext.gcIAP import __version__, __description__
 
 
 PYPI_RST_FILTERS = (
@@ -43,13 +43,13 @@ def rst(filename):
 # ))
 
 setup(
-    name='ckanext-firebase',
+    name='ckanext-gcIAP',
     version=__version__,
     description=__description__,
     long_description='''
-    The Firebase extension allows site visitors to login through a GCP Identity Aware Proxy server.
+    The GCIAP extension allows site visitors to login through a GCP Identity Aware Proxy server.
     ''',
-    keywords='CKAN, Firebase',
+    keywords='CKAN, GCIAP',
     author='Carlo Cancellieri',
     author_email='geo.ccancellieri@gmail.com',
     url='https://bitbucket.org/cioapps/fao-maps-ckan-authentication/',
@@ -70,7 +70,7 @@ setup(
     test_suite='nosetests',
     entry_points={
         'ckan.plugins': [
-            'firebase = ckanext.firebase.plugin:FirebasePlugin',
+            'gcIAP = ckanext.gcIAP.plugin:GCIAPPlugin',
         ],
         'nose.plugins': [
             'pylons = pylons.test:PylonsPlugin'

@@ -1,2 +1,2 @@
-recursive-include ckanext/firebase/templates *
+recursive-include ckanext/gcIAP/templates *
 include README.md

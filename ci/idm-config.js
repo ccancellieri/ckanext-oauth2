@@ -25,8 +25,8 @@ config.password_encryption = {
 	key: 'nodejs_idm'		// Must be changed
 }
 
-// Config firebase parameters
-config.firebase = {
+// Config gcIAP parameters
+config.gcIAP = {
     authorization_code_lifetime: 5 * 60,            // Five minutes
     access_token_lifetime: 60 * 60,                 // One hour
     refresh_token_lifetime: 60 * 60 * 24 * 14       // Two weeks

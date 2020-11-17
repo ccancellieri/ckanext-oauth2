@@ -1,4 +1,4 @@
-# This file is part of FAO Firebase Authentication CKAN Extension.
+# This file is part of FAO GCIAP Authentication CKAN Extension.
 # Copyright (c) 2020 UN FAO
 # Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
 # License: GPL3
@@ -38,35 +38,35 @@ def get_came_from(state):
 REQUIRED_CONF = ("authorization_endpoint", "profile_api_user_field", "profile_api_mail_field")
 
 
-class FirebaseHelper(object):
+class GCIAPHelper(object):
 
     def __init__(self):
 
-        #self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.firebase.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
-        self.authorization_endpoint = six.text_type(os.environ.get('CKAN_FIREBASE_AUTHORIZATION_ENDPOINT', toolkit.config.get('ckan.firebase.authorization_endpoint', ''))).strip()
+        #self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.gcIAP.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
+        self.authorization_endpoint = six.text_type(os.environ.get('CKAN_GCIAP_AUTHORIZATION_ENDPOINT', toolkit.config.get('ckan.gcIAP.authorization_endpoint', ''))).strip()
 
-        self.rememberer_name = six.text_type(os.environ.get('CKAN_FIREBASE_REMEMBER_NAME', toolkit.config.get('ckan.firebase.rememberer_name', 'auth_tkt'))).strip()
+        self.rememberer_name = six.text_type(os.environ.get('CKAN_GCIAP_REMEMBER_NAME', toolkit.config.get('ckan.gcIAP.rememberer_name', 'auth_tkt'))).strip()
         
-        #self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization')).lower()
+        #self.authorization_header = os.environ.get("CKAN_GCIAP_AUTHORIZATION_HEADER", config.get('ckan.gcIAP.authorization_header', 'Authorization')).lower()
 
         # self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL)
         self.ckan_url = urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path'))
         ## proxy-backend url which is proxied by the GCIP IAP
         ## local ckan ip used to redirect back the call from proxy-backend (shipping the jwt token)
-        self.local_ip = six.text_type(toolkit.config.get('ckan.firebase.local_ip', 'http://localhost')).strip()
+        self.local_ip = six.text_type(toolkit.config.get('ckan.gcIAP.local_ip', 'http://localhost')).strip()
         
-        self.profile_api_user_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_USER_FIELD', toolkit.config.get('ckan.firebase.profile_api_user_field', ''))).strip()
-        self.profile_api_fullname_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_FULLNAME_FIELD', toolkit.config.get('ckan.firebase.profile_api_fullname_field', ''))).strip()
-        self.profile_api_mail_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_MAIL_FIELD', toolkit.config.get('ckan.firebase.profile_api_mail_field', ''))).strip()
-        self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.firebase.profile_api_groupmembership_field', ''))).strip()
-        self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_FIREBASE_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.firebase.sysadmin_group_name', ''))).strip()
+        self.profile_api_user_field = six.text_type(os.environ.get('CKAN_GCIAP_PROFILE_API_USER_FIELD', toolkit.config.get('ckan.gcIAP.profile_api_user_field', ''))).strip()
+        self.profile_api_fullname_field = six.text_type(os.environ.get('CKAN_GCIAP_PROFILE_API_FULLNAME_FIELD', toolkit.config.get('ckan.gcIAP.profile_api_fullname_field', ''))).strip()
+        self.profile_api_mail_field = six.text_type(os.environ.get('CKAN_GCIAP_PROFILE_API_MAIL_FIELD', toolkit.config.get('ckan.gcIAP.profile_api_mail_field', ''))).strip()
+        self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_GCIAP_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.gcIAP.profile_api_groupmembership_field', ''))).strip()
+        self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_GCIAP_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.gcIAP.sysadmin_group_name', ''))).strip()
 	            
         # Init db
         db.init_db(model)
 
         missing = [key for key in REQUIRED_CONF if getattr(self, key, "") == ""]
         if missing:
-            raise ValueError("Missing required Firebase Auth conf: %s" % ", ".join(missing))
+            raise ValueError("Missing required GCIAP Auth conf: %s" % ", ".join(missing))
 
 
     def challenge(self, came_from=None):

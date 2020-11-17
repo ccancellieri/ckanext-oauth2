@@ -1,10 +1,10 @@
-# This file is part of FAO Firebase Authentication CKAN Extension.
+# This file is part of FAO GCIAP Authentication CKAN Extension.
 # Copyright (c) 2020 UN FAO
 # Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
 # License: GPL3
 
 import logging
-import firebase
+import gcIAP
 import os
 import requests
 from functools import partial
@@ -48,7 +48,7 @@ def request_reset(context, data_dict):
 
 
 
-class FirebasePlugin(plugins.SingletonPlugin):
+class GCIAPPlugin(plugins.SingletonPlugin):
 
     plugins.implements(plugins.IAuthenticator, inherit=True)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
@@ -56,17 +56,17 @@ class FirebasePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
 
     def __init__(self, name=None):
-        log.debug('Init Firebase extension')
-        self.FirebaseHelper = firebase.FirebaseHelper()
+        log.debug('Init GCIAP extension')
+        self.GCIAPHelper = gcIAP.GCIAPHelper()
 
     def before_map(self, m):
-        log.debug('Setting up the redirections to the Firebase service')
+        log.debug('Setting up the redirections to the GCIAP service')
 
         m.connect('/user/login',
-                  controller='ckanext.firebase.controller:FirebaseController',
+                  controller='ckanext.gcIAP.controller:GCIAPController',
                   action='login')
 
-        # Redirect the user to the Firebase resest service
+        # Redirect the user to the GCIAP resest service
         if self.reset_url:
             m.redirect('/user/reset', self.reset_url)
 
@@ -90,12 +90,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
         # If we have been able to log in the user (via API or Session)
         if user_name:
             log.debug("-------------Username from repoze: "+ user_name)
-            if self.FirebaseHelper.check_user_token_exp(user_name):
+            if self.GCIAPHelper.check_user_token_exp(user_name):
                 g.user = None
                 #TODO needed?
 #                toolkit.c.user = None
 #                environ['repoze.who.identity']['repoze.who.userid'] = None
-                return self.FirebaseHelper.renew_token(user_name)
+                return self.GCIAPHelper.renew_token(user_name)
             else:
                 g.user = user_name
 #                toolkit.c.user = user_name
@@ -135,12 +135,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
             log.Exception("Unable to log: "+str(e))
             raise
         
-        # This API Key is not the one of CKAN, it's the one provided by the firebase Service
+        # This API Key is not the one of CKAN, it's the one provided by the gcIAP Service
         if apikey:
             token = {'access_token': apikey}
-            user_name = self.FirebaseHelper.token_identify(token)
-            self.FirebaseHelper.update_token(user_name, token)
-            self.FirebaseHelper.remember(user_name)
+            user_name = self.GCIAPHelper.token_identify(token)
+            self.GCIAPHelper.update_token(user_name, token)
+            self.GCIAPHelper.remember(user_name)
         return user_name
 
     def get_auth_functions(self):
@@ -154,8 +154,8 @@ class FirebasePlugin(plugins.SingletonPlugin):
 
     def update_config(self, config):
         # Update our configuration
-        self.reset_url = os.environ.get("CKAN_FIREBASE_RESET_URL", config.get('ckan.firebase.reset_url', None))
-        self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization'))
+        self.reset_url = os.environ.get("CKAN_GCIAP_RESET_URL", config.get('ckan.gcIAP.reset_url', None))
+        self.authorization_header = os.environ.get("CKAN_GCIAP_AUTHORIZATION_HEADER", config.get('ckan.gcIAP.authorization_header', 'Authorization'))
 #.lower()
 
         # Add this plugin's templates dir to CKAN's extra_template_paths, so

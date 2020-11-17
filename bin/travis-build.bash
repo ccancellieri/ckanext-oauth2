@@ -62,7 +62,7 @@ cd ckan
 paster db init -c test-core.ini
 cd -
 
-echo "Installing ckanext-firebase and its requirements..."
+echo "Installing ckanext-gcIAP and its requirements..."
 python setup.py develop
 
 if [ "$INTEGRATION_TEST" = "true" ]; then

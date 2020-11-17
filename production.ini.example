@@ -105,41 +105,41 @@ ckan.redis.url = redis://127.0.0.1:6379/0
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 # "datapackager validation" to use datapackager
-ckan.plugins = firebase datapackager validation stats text_view image_view recline_view resource_proxy geo_view datastore datapusher spatial_metadata spatial_query harvest ckan_harvester pdf_view tableau_view structured_data
+ckan.plugins = gcIAP datapackager validation stats text_view image_view recline_view resource_proxy geo_view datastore datapusher spatial_metadata spatial_query harvest ckan_harvester pdf_view tableau_view structured_data
 
 
 ## OAuth2 configuration
-#ckan.firebase.authorization_endpoint = https://www.googleapis.com/firebase/v4/auth
-ckan.firebase.authorization_endpoint = https://accounts.google.com/o/firebase/v2/auth
+#ckan.gcIAP.authorization_endpoint = https://www.googleapis.com/gcIAP/v4/auth
+ckan.gcIAP.authorization_endpoint = https://accounts.google.com/o/gcIAP/v2/auth
 
-ckan.firebase.token_endpoint = https://www.googleapis.com/firebase/v4/token
+ckan.gcIAP.token_endpoint = https://www.googleapis.com/gcIAP/v4/token
 
-ckan.firebase.profile_api_url = https://www.googleapis.com/firebase/v3/userinfo
-ckan.firebase.scope = https://www.googleapis.com/auth/userinfo.email openid https://www.googleapis.com/auth/userinfo.profile
+ckan.gcIAP.profile_api_url = https://www.googleapis.com/gcIAP/v3/userinfo
+ckan.gcIAP.scope = https://www.googleapis.com/auth/userinfo.email openid https://www.googleapis.com/auth/userinfo.profile
 
-ckan.firebase.client_id = ###################.apps.googleusercontent.com
-ckan.firebase.client_secret = ########################
+ckan.gcIAP.client_id = ###################.apps.googleusercontent.com
+ckan.gcIAP.client_secret = ########################
 
 # IAP JWT
-ckan.firebase.jwt.enable = true
-ckan.firebase.authorization_header = x-goog-iap-jwt-assertion
-ckan.firebase.profile_api_user_field = gcip.email
-ckan.firebase.profile_api_fullname_field = gcip.firebase.sign_in_attributes_name
-ckan.firebase.profile_api_mail_field = gcip.email
-#ckan.firebase.profile_api_groupmembership_field
-#ckan.firebase.sysadmin_group_name
+ckan.gcIAP.jwt.enable = true
+ckan.gcIAP.authorization_header = x-goog-iap-jwt-assertion
+ckan.gcIAP.profile_api_user_field = gcip.email
+ckan.gcIAP.profile_api_fullname_field = gcip.gcIAP.sign_in_attributes_name
+ckan.gcIAP.profile_api_mail_field = gcip.email
+#ckan.gcIAP.profile_api_groupmembership_field
+#ckan.gcIAP.sysadmin_group_name
 
 
 # GCP Authentication platform
-#ckan.firebase.jwt.enable = false
-#ckan.firebase.authorization_header = GCP_IAAP_AUTH_TOKEN
-#ckan.firebase.profile_api_user_field = email
-#ckan.firebase.profile_api_fullname_field = name
-#ckan.firebase.profile_api_mail_field = email
+#ckan.gcIAP.jwt.enable = false
+#ckan.gcIAP.authorization_header = GCP_IAAP_AUTH_TOKEN
+#ckan.gcIAP.profile_api_user_field = email
+#ckan.gcIAP.profile_api_fullname_field = name
+#ckan.gcIAP.profile_api_mail_field = email
 
-#ckan.firebase.register_url
-#ckan.firebase.reset_url
-#ckan.firebase.edit_url
+#ckan.gcIAP.register_url
+#ckan.gcIAP.reset_url
+#ckan.gcIAP.edit_url
 
 # validation (datapackager)
 ckanext.validation.formats = csv xlsx

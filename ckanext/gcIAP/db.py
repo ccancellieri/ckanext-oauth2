@@ -1,4 +1,4 @@
-# This file is part of FAO Firebase Authentication CKAN Extension.
+# This file is part of FAO GCIAP Authentication CKAN Extension.
 # Copyright (c) 2020 UN FAO
 # Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
 # License: GPL3
