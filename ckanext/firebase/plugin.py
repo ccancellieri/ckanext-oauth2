@@ -109,11 +109,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
     def bearer(self):
         log.debug("-------------BEARER")
         apikey = toolkit.request.headers.get(self.authorization_header, '')
+        log.debug("-------------AUTH_HEADER_K: "+self.authorization_header)
+        log.debug("-------------APIKEY_before: "+apikey)
+        #if apikey.startswith('Bearer '):
+        #    apikey = apikey[7:].strip()
 
-        if self.authorization_header == "Authorization":
-            if apikey.startswith('Bearer '):
-                apikey = apikey[7:].strip()
-        
+        log.debug("-------------APIKEY_stripped: "+apikey)
 #        for e in toolkit.request.environ:
 #            log.debug("environ: "+e+" v: "+toolkit.request.environ[e])
 #        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
@@ -124,10 +125,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
         log.debug("-------------APIKEY: "+apikey)
         try:
             for p in toolkit.request.params:
-                log.debug("req_param: "+p+" v: "+toolkit.request.params.get(p))
+                log.debug("req_param: "+p+" v: "+toolkit.request.params.get(p,''))
             log.debug("req_url: "+toolkit.request.url)
             for h in toolkit.request.headers:
-                log.debug("header_param: "+h+" v: "+toolkit.request.headers.get(h))
+                log.debug("header_param: "+str(h)+" v: "+toolkit.request.headers.get(str(h),''))
+           # for h in toolkit.request.headers:
+           #     log.debug("header_param: "+h+" v: "+toolkit.request.headers.get(h,''))
         except Exception as e:
             log.Exception("Unable to log: "+str(e))
             raise
@@ -152,7 +155,8 @@ class FirebasePlugin(plugins.SingletonPlugin):
     def update_config(self, config):
         # Update our configuration
         self.reset_url = os.environ.get("CKAN_FIREBASE_RESET_URL", config.get('ckan.firebase.reset_url', None))
-        self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization')).lower()
+        self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization'))
+#.lower()
 
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
         # that CKAN will use this plugin's custom templates.
