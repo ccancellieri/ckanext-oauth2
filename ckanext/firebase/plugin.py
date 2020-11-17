@@ -113,7 +113,7 @@ class FirebasePlugin(plugins.SingletonPlugin):
         if self.authorization_header == "Authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
-        log.debug("-------------")
+        
 #        for e in toolkit.request.environ:
 #            log.debug("environ: "+e+" v: "+toolkit.request.environ[e])
 #        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
@@ -122,6 +122,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
 
         user_name = None
         log.debug("-------------APIKEY: "+apikey)
+        
+        for p in toolkit.request.params:
+            log.debug("req_param: "+p+" v: "+toolkit.request.params.get(p))
+        log.debug("req_url: "+toolkit.request.url)
+        for h in toolkit.request.headers:
+            log.debug("header_param: "+h+" v: "+toolkit.request.headers.get(h))
 
         # This API Key is not the one of CKAN, it's the one provided by the firebase Service
         if apikey:

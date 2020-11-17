@@ -153,12 +153,6 @@ class FirebaseHelper(object):
         from urlparse import urlparse
         log.debug("GET_PREVIOUS_PAGE: "+str(toolkit.request))
 
-        for p in toolkit.request.params:
-            log.debug("req_param: "+p+" v: "+toolkit.request.params[p])
-        log.debug("req_url: "+toolkit.request.url)
-        for h in toolkit.request.headers:
-            log.debug("header_param: "+h+" v: "+toolkit.request.headers[h])
-
 #        log.debug("GET_PREVIOUS_PAGE: "+str(toolkit.request))
         if 'came_from' not in toolkit.request.params:
             came_from_url = toolkit.request.headers.get('Referer', default_page)
