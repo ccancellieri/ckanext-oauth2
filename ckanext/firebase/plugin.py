@@ -128,7 +128,7 @@ class FirebasePlugin(plugins.SingletonPlugin):
         log.debug("req_url: "+toolkit.request.url)
         for h in toolkit.request.headers:
             if h:
-            log.debug("header_param: "+str(h)+" v: "+toolkit.request.headers.get(str(h)))
+                log.debug("header_param: "+str(h)+" v: "+toolkit.request.headers.get(str(h)))
 
         # This API Key is not the one of CKAN, it's the one provided by the firebase Service
         if apikey:
