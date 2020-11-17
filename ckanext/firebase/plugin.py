@@ -108,10 +108,8 @@ class FirebasePlugin(plugins.SingletonPlugin):
 
     def bearer(self):
         log.debug("-------------BEARER")
-        # authorization_header = "x-goog-iap-jwt-assertion".lower()
-        authorization_header = "authorization"
-        apikey = toolkit.request.headers.get(authorization_header, '')
-        if authorization_header == "authorization":
+        apikey = toolkit.request.headers.get(self.authorization_header, '')
+        if self.authorization_header == "authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
 

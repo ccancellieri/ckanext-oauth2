@@ -16,9 +16,7 @@ import os
 
 from base64 import b64encode, b64decode
 from ckan.plugins import toolkit
-from oauthlib.firebase import InsecureTransportError
 import requests
-from requests_oauthlib import OAuth2Session
 import six
 from ckan.plugins import toolkit
 import jwt
