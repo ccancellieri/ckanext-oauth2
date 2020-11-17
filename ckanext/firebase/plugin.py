@@ -63,7 +63,7 @@ class FirebasePlugin(plugins.SingletonPlugin):
         log.debug('Setting up the redirections to the Firebase service')
 
         m.connect('/user/login',
-                  controller='ckanext.firebase.controller:firebaseController',
+                  controller='ckanext.firebase.controller:FirebaseController',
                   action='login')
 
         # Redirect the user to the Firebase resest service
