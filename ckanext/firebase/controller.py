@@ -7,7 +7,6 @@
 from __future__ import unicode_literals
 
 import logging
-import constants
 
 from ckan.common import session
 import ckan.lib.helpers as helpers
