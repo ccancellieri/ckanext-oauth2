@@ -122,14 +122,16 @@ class FirebasePlugin(plugins.SingletonPlugin):
 
         user_name = None
         log.debug("-------------APIKEY: "+apikey)
+        try:
+            for p in toolkit.request.params:
+                log.debug("req_param: "+p+" v: "+toolkit.request.params.get(p))
+            log.debug("req_url: "+toolkit.request.url)
+            for h in toolkit.request.headers:
+                log.debug("header_param: "+h+" v: "+toolkit.request.headers.get(h))
+        except Exception as e:
+            log.Exception("Unable to log: "+str(e))
+            raise
         
-        for p in toolkit.request.params:
-            log.debug("req_param: "+p+" v: "+toolkit.request.params.get(p))
-        log.debug("req_url: "+toolkit.request.url)
-        for h in toolkit.request.headers:
-            if h:
-                log.debug("header_param: "+str(h)+" v: "+toolkit.request.headers.get(str(h)))
-
         # This API Key is not the one of CKAN, it's the one provided by the firebase Service
         if apikey:
             token = {'access_token': apikey}
