@@ -108,11 +108,12 @@ class FirebasePlugin(plugins.SingletonPlugin):
 
     def bearer(self):
         log.debug("-------------BEARER")
-        apikey = toolkit.request.headers.get(self.authorization_header, 'Authorization')
+        apikey = toolkit.request.headers.get(self.authorization_header, '')
+
         if self.authorization_header == "Authorization":
             if apikey.startswith('Bearer '):
                 apikey = apikey[7:].strip()
-
+        log.debug("-------------")
 #        for e in toolkit.request.environ:
 #            log.debug("environ: "+e+" v: "+toolkit.request.environ[e])
 #        log.debug("-----AUTH_HEADER_KEY---"+authorization_header)
