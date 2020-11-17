@@ -1,27 +1,10 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (c) 2014 CoNWeT Lab., Universidad Politécnica de Madrid
-# Copyright (c) 2018 Future Internet Consulting and Development Solutions S.L.
-
-# This file is part of OAuth2 CKAN Extension.
-
-# OAuth2 CKAN Extension is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# OAuth2 CKAN Extension is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with OAuth2 CKAN Extension.  If not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
+# This file is part of FAO Firebase Authentication CKAN Extension.
+# Copyright (c) 2020 UN FAO
+# Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
+# License: GPL3
 
 import logging
-import oauth2
+import firebase
 import os
 import requests
 from functools import partial
@@ -65,7 +48,7 @@ def request_reset(context, data_dict):
 
 
 
-class OAuth2Plugin(plugins.SingletonPlugin):
+class FirebasePlugin(plugins.SingletonPlugin):
 
     plugins.implements(plugins.IAuthenticator, inherit=True)
     plugins.implements(plugins.IAuthFunctions, inherit=True)
@@ -74,37 +57,19 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
     def __init__(self, name=None):
         log.debug('Init Firebase extension')
-        self.oauth2helper = oauth2.OAuth2Helper()
+        self.FirebaseHelper = firebase.FirebaseHelper()
 
     def before_map(self, m):
         log.debug('Setting up the redirections to the Firebase service')
 
         m.connect('/user/login',
-                  controller='ckanext.oauth2.controller:OAuth2Controller',
+                  controller='ckanext.firebase.controller:firebaseController',
                   action='login')
 
-        # We need to handle petitions received to the Callback URL
-        # since some error can arise and we need to process them
-        # m.connect(self.oauth2helper.redirect_back_path,#'/oauth2/callback',
-        #           controller='ckanext.oauth2.controller:OAuth2Controller',
-        #           action='callback')
-
-        #########################################################
-        ### TODO disable the following paths!!!
-
-        # Redirect the user to the OAuth service register page
-        if self.register_url:
-            m.redirect('/user/register', self.register_url)
-
-        # Redirect the user to the OAuth service reset page
+        # Redirect the user to the Firebase resest service
         if self.reset_url:
             m.redirect('/user/reset', self.reset_url)
 
-        # Redirect the user to the OAuth service reset page
-        if self.edit_url:
-            m.redirect('/user/edit/{user}', self.edit_url)
-        #########################################################
-        
         return m
 
     def identify(self):
@@ -125,12 +90,12 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         # If we have been able to log in the user (via API or Session)
         if user_name:
             log.debug("-------------Username from repoze: "+ user_name)
-            if self.oauth2helper.check_user_token_exp(user_name):
+            if self.FirebaseHelper.check_user_token_exp(user_name):
                 g.user = None
                 #TODO needed?
 #                toolkit.c.user = None
 #                environ['repoze.who.identity']['repoze.who.userid'] = None
-                return self.oauth2helper.renew_token(user_name)
+                return self.FirebaseHelper.renew_token(user_name)
             else:
                 g.user = user_name
 #                toolkit.c.user = user_name
@@ -159,12 +124,12 @@ class OAuth2Plugin(plugins.SingletonPlugin):
         user_name = None
         log.debug("-------------APIKEY: "+apikey)
 
-        # This API Key is not the one of CKAN, it's the one provided by the OAuth2 Service
+        # This API Key is not the one of CKAN, it's the one provided by the firebase Service
         if apikey:
             token = {'access_token': apikey}
-            user_name = self.oauth2helper.token_identify(token)
-            self.oauth2helper.update_token(user_name, token)
-            self.oauth2helper.remember(user_name)
+            user_name = self.FirebaseHelper.token_identify(token)
+            self.FirebaseHelper.update_token(user_name, token)
+            self.FirebaseHelper.remember(user_name)
         return user_name
 
     def get_auth_functions(self):
@@ -178,10 +143,8 @@ class OAuth2Plugin(plugins.SingletonPlugin):
 
     def update_config(self, config):
         # Update our configuration
-        self.register_url = os.environ.get("CKAN_OAUTH2_REGISTER_URL", config.get('ckan.oauth2.register_url', None))
-        self.reset_url = os.environ.get("CKAN_OAUTH2_RESET_URL", config.get('ckan.oauth2.reset_url', None))
-        self.edit_url = os.environ.get("CKAN_OAUTH2_EDIT_URL", config.get('ckan.oauth2.edit_url', None))
-        self.authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", config.get('ckan.oauth2.authorization_header', 'Authorization')).lower()
+        self.reset_url = os.environ.get("CKAN_FIREBASE_RESET_URL", config.get('ckan.firebase.reset_url', None))
+        self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization')).lower()
 
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
         # that CKAN will use this plugin's custom templates.

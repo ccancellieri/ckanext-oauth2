@@ -25,8 +25,8 @@ config.password_encryption = {
 	key: 'nodejs_idm'		// Must be changed
 }
 
-// Config oauth2 parameters
-config.oauth2 = {
+// Config firebase parameters
+config.firebase = {
     authorization_code_lifetime: 5 * 60,            // Five minutes
     access_token_lifetime: 60 * 60,                 // One hour
     refresh_token_lifetime: 60 * 60 * 24 * 14       // Two weeks

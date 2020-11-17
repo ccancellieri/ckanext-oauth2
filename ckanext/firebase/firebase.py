@@ -1,22 +1,7 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (c) 2014 CoNWeT Lab., Universidad Politécnica de Madrid
-# Copyright (c) 2018 Future Internet Consulting and Development Solutions S.L.
-
-# This file is part of OAuth2 CKAN Extension.
-
-# OAuth2 CKAN Extension is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# OAuth2 CKAN Extension is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with OAuth2 CKAN Extension.  If not, see <http://www.gnu.org/licenses/>.
+# This file is part of FAO Firebase Authentication CKAN Extension.
+# Copyright (c) 2020 UN FAO
+# Author: Carlo Cancellieri - geo.ccancellieri@gmail.com
+# License: GPL3
 
 
 from __future__ import unicode_literals
@@ -31,7 +16,7 @@ import os
 
 from base64 import b64encode, b64decode
 from ckan.plugins import toolkit
-from oauthlib.oauth2 import InsecureTransportError
+from oauthlib.firebase import InsecureTransportError
 import requests
 from requests_oauthlib import OAuth2Session
 import six
@@ -43,65 +28,48 @@ from datetime import datetime
 
 log = logging.getLogger(__name__)
 
+CAME_FROM_FIELD = 'came_from'
 
 def generate_state(url):
-    return b64encode(bytes(json.dumps({constants.CAME_FROM_FIELD: url})))
+    return b64encode(bytes(json.dumps({CAME_FROM_FIELD: url})))
 
 
 def get_came_from(state):
-    return json.loads(b64decode(state)).get(constants.CAME_FROM_FIELD, '/')
+    return json.loads(b64decode(state)).get(CAME_FROM_FIELD, '/')
 
 
-REQUIRED_CONF = ("authorization_endpoint", "token_endpoint", "client_id", "client_secret", "profile_api_url", "profile_api_user_field", "profile_api_mail_field")
+REQUIRED_CONF = ("authorization_endpoint", "profile_api_user_field", "profile_api_mail_field")
 
 
-class OAuth2Helper(object):
+class FirebaseHelper(object):
 
     def __init__(self):
 
-        self.verify_https = os.environ.get('OAUTHLIB_INSECURE_TRANSPORT', '') == ""
-        if self.verify_https and os.environ.get("REQUESTS_CA_BUNDLE", "").strip() != "":
-            self.verify_https = os.environ["REQUESTS_CA_BUNDLE"].strip()
+        #self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.firebase.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
+        self.authorization_endpoint = six.text_type(os.environ.get('CKAN_FIREBASE_AUTHORIZATION_ENDPOINT', toolkit.config.get('ckan.firebase.authorization_endpoint', ''))).strip()
 
-        self.jwt_enable = six.text_type(os.environ.get('CKAN_OAUTH2_JWT_ENABLE', toolkit.config.get('ckan.oauth2.jwt.enable',''))).strip().lower() in ("true", "1", "on")
-
-        self.legacy_idm = six.text_type(os.environ.get('CKAN_OAUTH2_LEGACY_IDM', toolkit.config.get('ckan.oauth2.legacy_idm', ''))).strip().lower() in ("true", "1", "on")
-        self.authorization_endpoint = six.text_type(os.environ.get('CKAN_OAUTH2_AUTHORIZATION_ENDPOINT', toolkit.config.get('ckan.oauth2.authorization_endpoint', ''))).strip()
-        self.token_endpoint = six.text_type(os.environ.get('CKAN_OAUTH2_TOKEN_ENDPOINT', toolkit.config.get('ckan.oauth2.token_endpoint', ''))).strip()
-        self.profile_api_url = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_URL', toolkit.config.get('ckan.oauth2.profile_api_url', ''))).strip()
-        self.client_id = six.text_type(os.environ.get('CKAN_OAUTH2_CLIENT_ID', toolkit.config.get('ckan.oauth2.client_id', ''))).strip()
-        self.client_secret = six.text_type(os.environ.get('CKAN_OAUTH2_CLIENT_SECRET', toolkit.config.get('ckan.oauth2.client_secret', ''))).strip()
-        self.scope = six.text_type(os.environ.get('CKAN_OAUTH2_SCOPE', toolkit.config.get('ckan.oauth2.scope', ''))).strip()
-        self.rememberer_name = six.text_type(os.environ.get('CKAN_OAUTH2_REMEMBER_NAME', toolkit.config.get('ckan.oauth2.rememberer_name', 'auth_tkt'))).strip()
-        self.profile_api_user_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_USER_FIELD', toolkit.config.get('ckan.oauth2.profile_api_user_field', ''))).strip()
-        self.profile_api_fullname_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_FULLNAME_FIELD', toolkit.config.get('ckan.oauth2.profile_api_fullname_field', ''))).strip()
-        self.profile_api_mail_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_MAIL_FIELD', toolkit.config.get('ckan.oauth2.profile_api_mail_field', ''))).strip()
-        self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_OAUTH2_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.oauth2.profile_api_groupmembership_field', ''))).strip()
-        self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_OAUTH2_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.oauth2.sysadmin_group_name', ''))).strip()
-	self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL)
-#        self.authorization_header = os.environ.get("CKAN_OAUTH2_AUTHORIZATION_HEADER", config.get('ckan.oauth2.authorization_header', 'Authorization')).lower()
-#	self.redirect_uri = toolkit.config.get('ckan.site_url', 'http://localhost:5000') + toolkit.config.get('ckan.root_path')+'/'+ constants.REDIRECT_URL
-	    
-        self.ckan_url = urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path'))
+        self.rememberer_name = six.text_type(os.environ.get('CKAN_FIREBASE_REMEMBER_NAME', toolkit.config.get('ckan.firebase.rememberer_name', 'auth_tkt'))).strip()
         
+        #self.authorization_header = os.environ.get("CKAN_FIREBASE_AUTHORIZATION_HEADER", config.get('ckan.firebase.authorization_header', 'Authorization')).lower()
+
+        # self.redirect_uri = urljoin(urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')+'/'), constants.REDIRECT_URL)
+        self.ckan_url = urljoin(toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path'))
         ## proxy-backend url which is proxied by the GCIP IAP
-        self.authorization_endpoint = six.text_type(toolkit.config.get('ckan.firebase.authorization_endpoint', 'https://data.review.fao.org/ckan-auth')).strip()
         ## local ckan ip used to redirect back the call from proxy-backend (shipping the jwt token)
         self.local_ip = six.text_type(toolkit.config.get('ckan.firebase.local_ip', 'http://localhost')).strip()
-        ## path mapped by the controller which will register/identify the user after the challenge (callback)
-        self.redirect_back_path = six.text_type(toolkit.config.get('ckan.firebase.redirect_back_path', '/oauth2/callback')).strip()
         
-
-# toolkit.config.get('ckan.site_url', 'http://localhost:5000'), toolkit.config.get('ckan.root_path')
-        
-        #" https://data.review.fao.org/ckan-auth ?redirect_uri= https://10.128.0.18 /ckan /oauth2/callback"
-        
+        self.profile_api_user_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_USER_FIELD', toolkit.config.get('ckan.firebase.profile_api_user_field', ''))).strip()
+        self.profile_api_fullname_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_FULLNAME_FIELD', toolkit.config.get('ckan.firebase.profile_api_fullname_field', ''))).strip()
+        self.profile_api_mail_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_MAIL_FIELD', toolkit.config.get('ckan.firebase.profile_api_mail_field', ''))).strip()
+        self.profile_api_groupmembership_field = six.text_type(os.environ.get('CKAN_FIREBASE_PROFILE_API_GROUPMEMBERSHIP_FIELD', toolkit.config.get('ckan.firebase.profile_api_groupmembership_field', ''))).strip()
+        self.sysadmin_group_name = six.text_type(os.environ.get('CKAN_FIREBASE_SYSADMIN_GROUP_NAME', toolkit.config.get('ckan.firebase.sysadmin_group_name', ''))).strip()
+	            
         # Init db
         db.init_db(model)
 
         missing = [key for key in REQUIRED_CONF if getattr(self, key, "") == ""]
         if missing:
-            raise ValueError("Missing required oauth2 conf: %s" % ", ".join(missing))
+            raise ValueError("Missing required Firebase Auth conf: %s" % ", ".join(missing))
         elif self.scope == "":
             self.scope = None
 
@@ -109,14 +77,10 @@ class OAuth2Helper(object):
         if not came_from:
             came_from = self._get_previous_page(self.ckan_url)
         log.debug("CAME_FROM: "+came_from)
-# woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
-	came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
+        # woraround: can't pass throught the loadbalancer... (it wipe out jwt token)
+        came_from = came_from.replace(toolkit.config.get('ckan.site_url'),self.local_ip)
 
-#        auth_url=self.authorization_endpoint+'?redirect_uri='+self.local_ip+toolkit.config.get('ckan.root_path')+self.redirect_back_path+'&came_from='+came_from
         auth_url=self.authorization_endpoint+'?redirect_uri='+came_from
-        #auth_url=self.authorization_endpoint
-#+came_from
-#+self.local_ip+toolkit.config.get('ckan.root_path')+came_from
         
         log.debug('Challenge: Redirecting challenge to page {0}'.format(auth_url))
         
@@ -304,35 +268,4 @@ class OAuth2Helper(object):
             log.warning("Redirecting...."+self.ckan_url+toolkit.request.path)
        # pp=self._get_previous_page(self.ckan_url)
             return self.challenge(self.ckan_url+toolkit.request.path)
-#        return self.challenge(self.ckan_url+toolkit.request.path)
-        # except Exception as e:
-        #     log.exception("-----------EXCEPTION-"+str(e))
-    #logout
-                    # g.user = ''
-                    # toolkit.c.user = ''
-                    
-                #pp = environ['HTTP_REFERER']
-#ERRORS?                pp=toolkit.url_for(toolkit.request.path, _external=True)
-#                log.debug('previous page: '+pp)
-                    
-#                    auth_url='https://data.review.fao.org/ckan-auth/?gcp-iap-mode=SESSION_REFRESHER'
-# TODO redirect to the previous page... (environ??)
-	#	return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
-                    #return toolkit.redirect_to(controller='ckanext.oauth2.controller:OAuth2Controller', action='login')
-                    # toolkit.get_action('login')(toolkit.c)
-    #     token = self.get_stored_token(user_name)
-    #     if token:
-    #         client = OAuth2Session(self.client_id, token=token, scope=self.scope)
-    #         try:
-    #             token = client.refresh_token(self.token_endpoint, client_secret=self.client_secret, client_id=self.client_id, verify=self.verify_https)
-    #         except requests.exceptions.SSLError as e:
-    #             # TODO search a better way to detect invalid certificates
-    #             if "verify failed" in six.text_type(e):
-    #                 raise InsecureTransportError()
-    #             else:
-    #                 raise
-    #         self.update_token(user_name, token)
-    #         log.info('Token for user %s has been updated properly' % user_name)
-    #         return token
-    #     else:
-    #         log.warn('User %s has no refresh token' % user_name)
+
