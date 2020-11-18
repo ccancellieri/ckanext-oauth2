@@ -1,21 +1,33 @@
-OAuth2 CKAN extension
+gcIAP CKAN extension
 =====================
 
-[![Build Status](https://travis-ci.org/conwetlab/ckanext-gcIAP.svg?branch=master)](https://travis-ci.org/conwetlab/ckanext-gcIAP)
-[![Coverage Status](https://coveralls.io/repos/github/conwetlab/ckanext-gcIAP/badge.svg?branch=master)](https://coveralls.io/github/conwetlab/ckanext-gcIAP?branch=master)
 
-The OAuth2 extension allows site visitors to login through an OAuth2 server.
+ckan.plugins = gcIAP ...
+## gcIAP configuration
+# local ip of the machine
+# we need that to perform internal redirection to skip the LB
+ckan.gcIAP.local_ip= https://10.128.0.18
 
-**Note**: This extension is being tested in CKAN 2.6, 2.7 and 2.8. These are therefore considered as the supported versions
+# Used to login:
+# must be an nginx IAP proxied endpoint:
+# location /ckan-auth {
+#    proxy_set_header X-Goog-Iap-Jwt-Assertion $HTTP_X-Goog-IAP-Jwt-Assertion;
+#    proxy_pass $arg_redirect_uri;
+# }
+ckan.gcIAP.authorization_endpoint = https://data.review.fao.org/ckan-auth
 
+# Used to logout
+ckan.gcIAP.reset_url= https://data.review.fao.org/ckan-auth?gcp-iap-mode=GCIP_SIGNOUT
 
-## Links
+# the header used to get the JWT token (default: X-Goog-Iap-Jwt-Assertion )
+ckan.gcIAP.authorization_header = X-Goog-Iap-Jwt-Assertion
 
-1. [Activating & Installing the plugin](https://github.com/conwetlab/ckanext-gcIAP/wiki/Activating-and-Installing)
-2. [Starting CKAN over HTTPs](https://github.com/conwetlab/ckanext-gcIAP/wiki/Starting-CKAN-over-HTTPs)
-3. [How it works?](https://github.com/conwetlab/ckanext-gcIAP/wiki/How-it-works%3F)
+# the flatten path of the field in the token to use as username
+ckan.gcIAP.profile_api_user_field = gcip.email
+# the flatten path of the field in the token to use as name
+ckan.gcIAP.profile_api_fullname_field = gcip.gcIAP.name
+# the flatten path of the field in the token to use as email
+ckan.gcIAP.profile_api_mail_field = gcip.email
 
-
-## Credits
-
-Based on the idea proposed by [Etalab](https://github.com/etalab/ckanext-gcIAP)
+#ckan.gcIAP.profile_api_groupmembership_field
+#ckan.gcIAP.sysadmin_group_name
