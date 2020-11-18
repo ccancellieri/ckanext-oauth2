@@ -25,7 +25,7 @@ ckan.gcIAP.authorization_header = X-Goog-Iap-Jwt-Assertion
 # the flatten path of the field in the token to use as username
 ckan.gcIAP.profile_api_user_field = gcip.email
 # the flatten path of the field in the token to use as name
-ckan.gcIAP.profile_api_fullname_field = gcip.gcIAP.name
+ckan.gcIAP.profile_api_fullname_field = gcip.firebase.name
 # the flatten path of the field in the token to use as email
 ckan.gcIAP.profile_api_mail_field = gcip.email
 
